@@ -5,6 +5,9 @@ import cantina.modelo.Pedido;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Repositório de pedidos — guarda todos os pedidos em memória.
+ */
 public class PedidoRepositorio {
 
     private List<Pedido> pedidos;

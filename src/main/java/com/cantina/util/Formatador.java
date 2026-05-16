@@ -1,109 +1,65 @@
 package cantina.util;
 
+/**
+ * Classe utilitária com métodos estáticos para formatar
+ * textos e valores no terminal.
+ */
 public class Formatador {
 
-    private static final int LARGURA = 60;
+    private static final int LARGURA = 55;
 
-    private static final String RESET   = "\033[0m";
-    private static final String BOLD    = "\033[1m";
-    private static final String DIM     = "\033[2m";
-
-    private static final String VERDE   = "\033[38;5;82m";
-    private static final String VERMELHO= "\033[38;5;196m";
-    private static final String AMARELO = "\033[38;5;220m";
-    private static final String AZUL    = "\033[38;5;75m";
-    private static final String CIANO   = "\033[38;5;51m";
-    private static final String LARANJA = "\033[38;5;214m";
-    private static final String ROXO    = "\033[38;5;177m";
-
-    private static final String BG_ESCURO = "\033[48;5;235m";
-
+    // Linha decorativa simples
     public static String linha() {
-        return DIM + "─".repeat(LARGURA) + RESET;
+        return "=".repeat(LARGURA);
     }
 
-    public static String linhaDouble() {
-        return CIANO + BOLD + "═".repeat(LARGURA) + RESET;
-    }
-
+    // Linha decorativa menor
     public static String linhaMenor() {
-        return DIM + "┄".repeat(LARGURA) + RESET;
+        return "-".repeat(LARGURA);
     }
 
+    // Título centrado dentro de uma caixa
     public static String titulo(String texto) {
-        String limpo = texto.strip();
-        int total = LARGURA - 2;
-        int pad = (total - limpo.length()) / 2;
-        String espaco = " ".repeat(Math.max(0, pad));
-        String linha = CIANO + BOLD + "╔" + "═".repeat(LARGURA - 2) + "╗" + RESET;
-        String meio  = CIANO + BOLD + "║" + RESET
-                     + espaco + LARANJA + BOLD + limpo + RESET
-                     + espaco + (((total - limpo.length()) % 2 != 0) ? " " : "")
-                     + CIANO + BOLD + "║" + RESET;
-        String base  = CIANO + BOLD + "╚" + "═".repeat(LARGURA - 2) + "╝" + RESET;
-        return "\n" + linha + "\n" + meio + "\n" + base;
+        int espacos = (LARGURA - texto.length()) / 2;
+        String pad = " ".repeat(Math.max(0, espacos));
+        return linha() + "\n" + pad + texto + "\n" + linha();
     }
 
+    // Subtítulo
     public static String subtitulo(String texto) {
-        String limpo = texto.strip();
-        return AZUL + BOLD + "┌─ " + RESET + BOLD + limpo + RESET + "\n" + AZUL + "└" + "─".repeat(LARGURA - 1) + RESET;
+        return linhaMenor() + "\n  " + texto + "\n" + linhaMenor();
     }
 
-    public static String secao(String texto) {
-        return "\n" + ROXO + BOLD + "  ▸ " + texto.toUpperCase() + RESET + "\n" + DIM + "  " + "╌".repeat(LARGURA - 2) + RESET;
-    }
-
+    // Formata moeda angolana
     public static String moeda(double valor) {
-        return VERDE + BOLD + String.format("Kz %,.2f", valor) + RESET;
-    }
-
-    public static String moedaPlano(double valor) {
         return String.format("Kz %,.2f", valor);
     }
 
+    // Linha de item de factura (nome à esquerda, valor à direita)
     public static String linhaFactura(String descricao, double valor) {
-        String valorStr = moedaPlano(valor);
+        String valorStr = moeda(valor);
         int espacos = LARGURA - descricao.length() - valorStr.length();
         if (espacos < 1) espacos = 1;
-        return BOLD + descricao + RESET + " ".repeat(espacos) + VERDE + BOLD + valorStr + RESET;
+        return descricao + " ".repeat(espacos) + valorStr;
     }
 
-    public static void erro(String msg) {
-        System.out.println("\n  " + VERMELHO + BOLD + "✖  " + msg + RESET);
-    }
-
-    public static void sucesso(String msg) {
-        System.out.println("\n  " + VERDE + BOLD + "✔  " + msg + RESET);
-    }
-
-    public static void aviso(String msg) {
-        System.out.println("\n  " + AMARELO + BOLD + "⚠  " + msg + RESET);
-    }
-
-    public static void info(String msg) {
-        System.out.println("  " + AZUL + "ℹ  " + RESET + msg);
-    }
-
-    public static String tag(String texto, String cor) {
-        return cor + BOLD + "[" + texto + "]" + RESET;
-    }
-
-    public static String tagVerde(String t)  { return tag(t, VERDE); }
-    public static String tagAmarelo(String t){ return tag(t, AMARELO); }
-    public static String tagVermelho(String t){ return tag(t, VERMELHO); }
-    public static String tagCiano(String t)  { return tag(t, CIANO); }
-
-    public static void prompt(String msg) {
-        System.out.print("\n  " + CIANO + "❯ " + RESET + msg + " ");
-    }
-
-    public static void opcaoMenu(String num, String label, String detalhe) {
-        System.out.println("  " + AZUL + BOLD + " " + num + " " + RESET
-                + "  " + BOLD + label + RESET
-                + DIM + "  " + detalhe + RESET);
-    }
-
+    // Imprime uma linha em branco
     public static void espaco() {
         System.out.println();
+    }
+
+    // Imprime mensagem de erro formatada
+    public static void erro(String msg) {
+        System.out.println("\n  ❌ ERRO: " + msg);
+    }
+
+    // Imprime mensagem de sucesso formatada
+    public static void sucesso(String msg) {
+        System.out.println("\n  ✅ " + msg);
+    }
+
+    // Imprime aviso formatado
+    public static void aviso(String msg) {
+        System.out.println("\nATENÇÃO: " + msg);
     }
 }

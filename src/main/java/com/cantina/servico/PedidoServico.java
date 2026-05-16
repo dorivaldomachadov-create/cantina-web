@@ -11,6 +11,9 @@ import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Serviço responsável pela gestão de pedidos.
+ */
 public class PedidoServico {
 
     private PedidoRepositorio pedidoRepositorio;
@@ -28,20 +31,20 @@ public class PedidoServico {
         this.scanner = scanner;
     }
 
+    // ---------- Menus ----------
+
     public void menuPedidos() {
         int opcao = -1;
         while (opcao != 0) {
-            System.out.println(Formatador.titulo("GESTÃO DE PEDIDOS"));
-            System.out.println();
-            Formatador.opcaoMenu("1", "Novo pedido",                  "criar pedido para um cliente");
-            Formatador.opcaoMenu("2", "Adicionar item a pedido",      "inserir produto num pedido aberto");
-            Formatador.opcaoMenu("3", "Remover item de pedido",       "retirar produto de um pedido aberto");
-            Formatador.opcaoMenu("4", "Pedidos em aberto",            "listar pedidos pendentes");
-            Formatador.opcaoMenu("5", "Todos os pedidos",             "histórico completo");
-            Formatador.opcaoMenu("6", "Fechar pedido e gerar factura","finalizar e imprimir");
-            System.out.println();
-            Formatador.opcaoMenu("0", "Voltar",                       "menu principal");
-            Formatador.prompt("Opção:");
+            System.out.println("\n" + Formatador.titulo("  GESTÃO DE PEDIDOS  "));
+            System.out.println("  1. Novo pedido");
+            System.out.println("  2. Adicionar item a pedido existente");
+            System.out.println("  3. Remover item de um pedido");
+            System.out.println("  4. Ver pedidos em aberto");
+            System.out.println("  5. Ver todos os pedidos");
+            System.out.println("  6. Fechar pedido e gerar factura");
+            System.out.println("  0. Voltar ao menu principal");
+            System.out.print("\n  Escolhe uma opção: ");
 
             try {
                 opcao = scanner.nextInt();
@@ -59,23 +62,25 @@ public class PedidoServico {
                 case 4 -> listarPedidosAbertos();
                 case 5 -> listarTodosPedidos();
                 case 6 -> fecharPedidoEGerarFactura();
-                case 0 -> {}
+                case 0 -> System.out.println("  A voltar ao menu principal...");
                 default -> Formatador.erro("Opção inválida. Escolhe entre 0 e 6.");
             }
         }
     }
 
+    // ---------- Operações ----------
+
     private void novoPedido() {
-        System.out.println(Formatador.subtitulo("NOVO PEDIDO"));
-        System.out.println();
-        Formatador.prompt("Nome do cliente:");
+        System.out.println("\n" + Formatador.subtitulo("  NOVO PEDIDO  "));
+        System.out.print("  Nome do cliente: ");
         String nome = scanner.nextLine().trim();
         if (nome.isEmpty()) nome = "Cliente";
 
         Pedido pedido = pedidoRepositorio.criar(nome);
         Formatador.sucesso("Pedido #" + String.format("%03d", pedido.getNumero()) + " criado para " + nome + "!");
 
-        Formatador.prompt("Adicionar itens agora? (s/n):");
+        // Oferecer imediatamente adicionar itens
+        System.out.print("  Queres adicionar itens agora? (s/n): ");
         if (scanner.nextLine().trim().equalsIgnoreCase("s")) {
             adicionarItens(pedido);
         }
@@ -88,37 +93,20 @@ public class PedidoServico {
     }
 
     private void adicionarItens(Pedido pedido) {
-        System.out.println(Formatador.subtitulo("PEDIDO #" + String.format("%03d", pedido.getNumero()) + " — ADICIONAR ITENS"));
+        System.out.println("\n" + Formatador.subtitulo("  PEDIDO #" + String.format("%03d", pedido.getNumero()) + " — ADICIONAR ITENS  "));
 
+        // Mostrar cardápio resumido
         List<Produto> todos = produtoRepositorio.listarTodos();
-
-        String RESET = "\033[0m";
-        String BOLD  = "\033[1m";
-        String DIM   = "\033[2m";
-        String VERDE = "\033[38;5;82m";
-        String CIANO = "\033[38;5;51m";
-        String AMAR  = "\033[38;5;220m";
-
-        System.out.println(Formatador.secao("Cardápio Disponível"));
-        System.out.printf("  %s%-4s  %-28s  %-12s  %s%s%n",
-                BOLD + DIM, "ID", "Produto", "Preço", "Stock", RESET);
-        System.out.println("  " + DIM + "─".repeat(54) + RESET);
-
+        System.out.println("\n  === CARDÁPIO ===");
         for (Produto p : todos) {
             if (p.getQuantidadeEstoque() > 0) {
-                String stockCor = p.getQuantidadeEstoque() <= 3 ? AMAR + BOLD : VERDE;
-                System.out.printf("  %s[%2d]%s  %-28s  %s%-12s%s  %s%d un%s%n",
-                        DIM + CIANO, p.getId(), RESET,
-                        p.getNome(),
-                        BOLD + VERDE, String.format("Kz %.0f", p.getPreco()), RESET,
-                        stockCor, p.getQuantidadeEstoque(), RESET);
+                System.out.println("  " + p.descricao());
             }
         }
-        System.out.println();
 
         boolean continuar = true;
         while (continuar) {
-            Formatador.prompt("ID do produto (0 para terminar):");
+            System.out.print("\n  ID do produto (0 para terminar): ");
             try {
                 int idProduto = scanner.nextInt();
                 if (idProduto == 0) { scanner.nextLine(); break; }
@@ -135,7 +123,7 @@ public class PedidoServico {
                     continue;
                 }
 
-                Formatador.prompt("Quantidade:");
+                System.out.print("  Quantidade: ");
                 int qtd = scanner.nextInt();
                 scanner.nextLine();
 
@@ -150,7 +138,7 @@ public class PedidoServico {
                 estoqueServico.reduzirEstoque(idProduto, qtd);
                 Formatador.sucesso(qtd + "x \"" + produto.getNome() + "\" adicionado(s)!");
 
-                Formatador.prompt("Adicionar mais itens? (s/n):");
+                System.out.print("  Adicionar mais itens? (s/n): ");
                 continuar = scanner.nextLine().trim().equalsIgnoreCase("s");
 
             } catch (InputMismatchException e) {
@@ -160,10 +148,8 @@ public class PedidoServico {
         }
 
         if (!pedido.getItens().isEmpty()) {
-            System.out.println();
-            System.out.println("  " + Formatador.linhaMenor());
+            System.out.println("\n  " + Formatador.linhaMenor());
             System.out.println("  Subtotal actual: " + Formatador.moeda(pedido.calcularTotal()));
-            System.out.println();
         }
     }
 
@@ -176,26 +162,18 @@ public class PedidoServico {
             return;
         }
 
-        String RESET = "\033[0m";
-        String DIM   = "\033[2m";
-        String CIANO = "\033[38;5;51m";
-        String BOLD  = "\033[1m";
-
-        System.out.println(Formatador.subtitulo("ITENS DO PEDIDO #" + String.format("%03d", pedido.getNumero())));
-        System.out.println();
+        System.out.println("\n  Itens do pedido #" + String.format("%03d", pedido.getNumero()) + ":");
         for (ItemPedido item : pedido.getItens()) {
-            System.out.printf("  %s[ID %2d]%s  %dx %-24s  Kz %.2f%n",
-                    DIM + CIANO, item.getProduto().getId(), RESET,
-                    item.getQuantidade(), item.getProduto().getNome(),
-                    item.calcularSubtotal());
+            System.out.println("  " + item.descricao() + "  [ID: " + item.getProduto().getId() + "]");
         }
 
-        Formatador.prompt("ID do produto a remover (0 para cancelar):");
+        System.out.print("\n  ID do produto a remover (0 para cancelar): ");
         try {
             int id = scanner.nextInt();
             scanner.nextLine();
             if (id == 0) return;
 
+            // Devolver ao estoque antes de remover
             for (ItemPedido item : pedido.getItens()) {
                 if (item.getProduto().getId() == id) {
                     estoqueServico.devolverEstoque(id, item.getQuantidade());
@@ -216,32 +194,26 @@ public class PedidoServico {
 
     private void listarPedidosAbertos() {
         List<Pedido> abertos = pedidoRepositorio.listarAbertos();
-        System.out.println(Formatador.titulo("PEDIDOS EM ABERTO"));
-        System.out.println();
+        System.out.println("\n" + Formatador.titulo("  PEDIDOS EM ABERTO  "));
         if (abertos.isEmpty()) {
-            Formatador.info("Nenhum pedido em aberto.");
-            System.out.println();
+            System.out.println("  Nenhum pedido em aberto.");
             return;
         }
         for (Pedido p : abertos) {
-            System.out.println(p.resumo());
+            System.out.println("  " + p.resumo());
         }
-        System.out.println();
     }
 
     private void listarTodosPedidos() {
         List<Pedido> todos = pedidoRepositorio.listarTodos();
-        System.out.println(Formatador.titulo("TODOS OS PEDIDOS"));
-        System.out.println();
+        System.out.println("\n" + Formatador.titulo("  TODOS OS PEDIDOS  "));
         if (todos.isEmpty()) {
-            Formatador.info("Nenhum pedido registado.");
-            System.out.println();
+            System.out.println("  Nenhum pedido registado.");
             return;
         }
         for (Pedido p : todos) {
-            System.out.println(p.resumo());
+            System.out.println("  " + p.resumo());
         }
-        System.out.println();
     }
 
     private void fecharPedidoEGerarFactura() {
@@ -253,9 +225,9 @@ public class PedidoServico {
             return;
         }
 
-        Formatador.prompt("Confirmas o fecho do pedido #" + String.format("%03d", pedido.getNumero()) + "? (s/n):");
+        System.out.print("  Confirmas o fecho do pedido #" + String.format("%03d", pedido.getNumero()) + "? (s/n): ");
         if (!scanner.nextLine().trim().equalsIgnoreCase("s")) {
-            Formatador.info("Operação cancelada.");
+            System.out.println("  Operação cancelada.");
             return;
         }
 
@@ -263,71 +235,32 @@ public class PedidoServico {
         imprimirFactura(pedido);
     }
 
+    // ---------- Factura ----------
+
     public void imprimirFactura(Pedido pedido) {
-        String RESET  = "\033[0m";
-        String BOLD   = "\033[1m";
-        String DIM    = "\033[2m";
-        String VERDE  = "\033[38;5;82m";
-        String CIANO  = "\033[38;5;51m";
-        String AMAR   = "\033[38;5;220m";
-        String LARANJA= "\033[38;5;214m";
-
-        System.out.println();
-        System.out.println("  " + CIANO + BOLD + "╔" + "═".repeat(54) + "╗" + RESET);
-        System.out.println("  " + CIANO + BOLD + "║" + RESET
-                + centrar("🧾  CANTINA — FACTURA OFICIAL", 54)
-                + CIANO + BOLD + "║" + RESET);
-        System.out.println("  " + CIANO + BOLD + "╠" + "═".repeat(54) + "╣" + RESET);
-
-        String linhaPedido  = String.format("  Pedido Nº:  #%03d", pedido.getNumero());
-        String linhaCliente = "  Cliente:    " + pedido.getNomeCliente();
-        String linhaData    = "  Data/Hora:  " + pedido.getDataHoraFormatada();
-
-        for (String linha : new String[]{linhaPedido, linhaCliente, linhaData}) {
-            int pad = 54 - linha.length();
-            System.out.println("  " + CIANO + BOLD + "║" + RESET
-                    + BOLD + linha + " ".repeat(Math.max(0, pad)) + RESET
-                    + CIANO + BOLD + "║" + RESET);
-        }
-
-        System.out.println("  " + CIANO + "╠" + "─".repeat(54) + "╣" + RESET);
-        System.out.println("  " + CIANO + BOLD + "║" + RESET
-                + LARANJA + BOLD + "  ITENS" + " ".repeat(48) + RESET
-                + CIANO + BOLD + "║" + RESET);
-        System.out.println("  " + CIANO + "╠" + "─".repeat(54) + "╣" + RESET);
+        System.out.println("\n\n" + Formatador.linha());
+        System.out.println("          CANTINA — FACTURA OFICIAL");
+        System.out.println(Formatador.linha());
+        System.out.printf("  Pedido Nº:  #%03d%n", pedido.getNumero());
+        System.out.println("  Cliente:    " + pedido.getNomeCliente());
+        System.out.println("  Data/Hora:  " + pedido.getDataHoraFormatada());
+        System.out.println(Formatador.linhaMenor());
+        System.out.println("  ITENS:");
+        System.out.println(Formatador.linhaMenor());
 
         for (ItemPedido item : pedido.getItens()) {
-            String desc = String.format("  %dx %-24s Kz %8.2f",
-                    item.getQuantidade(), item.getProduto().getNome(), item.calcularSubtotal());
-            int pad = 54 - desc.length();
-            System.out.println("  " + CIANO + BOLD + "║" + RESET
-                    + desc + " ".repeat(Math.max(0, pad))
-                    + CIANO + BOLD + "║" + RESET);
+            System.out.println("  " + item.descricao());
         }
 
-        System.out.println("  " + CIANO + "╠" + "═".repeat(54) + "╣" + RESET);
-
-        String totalLabel = "  TOTAL A PAGAR:";
-        String totalValor = String.format("Kz %,.2f", pedido.calcularTotal());
-        int espTotal = 54 - totalLabel.length() - totalValor.length();
-        System.out.println("  " + CIANO + BOLD + "║" + RESET
-                + BOLD + totalLabel + " ".repeat(Math.max(1, espTotal)) + RESET
-                + VERDE + BOLD + totalValor + RESET
-                + CIANO + BOLD + "║" + RESET);
-
-        System.out.println("  " + CIANO + BOLD + "╠" + "═".repeat(54) + "╣" + RESET);
-        System.out.println("  " + CIANO + BOLD + "║" + RESET
-                + centrar(AMAR + "Obrigado pela preferência! Volte sempre!" + RESET, 54 + 10)
-                + CIANO + BOLD + "║" + RESET);
-        System.out.println("  " + CIANO + BOLD + "╚" + "═".repeat(54) + "╝" + RESET);
+        System.out.println(Formatador.linhaMenor());
+        System.out.println(Formatador.linhaFactura("  TOTAL A PAGAR:", pedido.calcularTotal()));
+        System.out.println(Formatador.linha());
+        System.out.println("        Obrigado pela preferência! Volte sempre!");
+        System.out.println(Formatador.linha());
         System.out.println();
     }
 
-    private String centrar(String texto, int largura) {
-        int visivel = texto.replaceAll("\033\\[[;\\d]*m", "").length();
-        int pad = (largura - visivel) / 2;
-        return " ".repeat(Math.max(0, pad)) + texto + " ".repeat(Math.max(0, largura - visivel - pad));
-    }
+    // ---------- Utilitário ----------
 
     private Pedido selecionarPedidoAberto() {
         List<Pedido> abertos = pedidoRepositorio.listarAbertos();
@@ -335,13 +268,11 @@ public class PedidoServico {
             Formatador.aviso("Não há pedidos em aberto. Cria um pedido primeiro.");
             return null;
         }
-        System.out.println();
-        System.out.println(Formatador.subtitulo("Pedidos em aberto"));
-        System.out.println();
+        System.out.println("\n  Pedidos em aberto:");
         for (Pedido p : abertos) {
-            System.out.println(p.resumo());
+            System.out.println("  " + p.resumo());
         }
-        Formatador.prompt("Número do pedido (0 para cancelar):");
+        System.out.print("\n  Número do pedido (0 para cancelar): ");
         try {
             int num = scanner.nextInt();
             scanner.nextLine();

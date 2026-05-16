@@ -22,10 +22,10 @@ public class Produto {
     public int getQuantidadeEstoque()   { return quantidadeEstoque; }
     public String getCategoria()        { return categoria; }
 
-    public void setNome(String nome)                  { this.nome = nome; }
-    public void setPreco(double preco)                { this.preco = preco; }
-    public void setQuantidadeEstoque(int qtd)         { this.quantidadeEstoque = qtd; }
-    public void setCategoria(String categoria)        { this.categoria = categoria; }
+    public void setNome(String nome)                        { this.nome = nome; }
+    public void setPreco(double preco)                      { this.preco = preco; }
+    public void setQuantidadeEstoque(int qtd)               { this.quantidadeEstoque = qtd; }
+    public void setCategoria(String categoria)              { this.categoria = categoria; }
 
     public String descricao() {
         return String.format("[%d] %-26s Kz %8.2f  |  Estoque: %2d  |  %s",

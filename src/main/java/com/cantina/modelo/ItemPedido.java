@@ -1,5 +1,9 @@
 package cantina.modelo;
 
+/**
+ * Representa um item dentro de um pedido.
+ * Liga um Produto a uma quantidade pedida.
+ */
 public class ItemPedido {
 
     private Produto produto;
@@ -10,10 +14,13 @@ public class ItemPedido {
         this.quantidade = quantidade;
     }
 
-    public Produto getProduto()                      { return produto; }
-    public int getQuantidade()                       { return quantidade; }
-    public void setQuantidade(int quantidade)        { this.quantidade = quantidade; }
+    public Produto getProduto()     { return produto; }
+    public int getQuantidade()      { return quantidade; }
+    public void setQuantidade(int quantidade) { this.quantidade = quantidade; }
 
+    /**
+     * Calcula o subtotal deste item (preço × quantidade).
+     */
     public double calcularSubtotal() {
         return produto.getPreco() * quantidade;
     }

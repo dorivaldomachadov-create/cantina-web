@@ -1,5 +1,9 @@
 package cantina.modelo;
 
+/**
+ * Subclasse de Produto para comidas.
+ * Adiciona o atributo "vegetariana".
+ */
 public class Comida extends Produto {
 
     private boolean vegetariana;
@@ -9,8 +13,8 @@ public class Comida extends Produto {
         this.vegetariana = vegetariana;
     }
 
-    public boolean isVegetariana()                   { return vegetariana; }
-    public void setVegetariana(boolean vegetariana)  { this.vegetariana = vegetariana; }
+    public boolean isVegetariana() { return vegetariana; }
+    public void setVegetariana(boolean vegetariana) { this.vegetariana = vegetariana; }
 
     @Override
     public String descricao() {

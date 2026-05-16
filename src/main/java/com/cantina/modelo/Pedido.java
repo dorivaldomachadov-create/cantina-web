@@ -5,6 +5,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Representa um pedido feito na cantina.
+ * Contém uma lista de itens e o estado (aberto / fechado).
+ */
 public class Pedido {
 
     public enum Estado { ABERTO, FECHADO }
@@ -23,6 +27,7 @@ public class Pedido {
         this.dataHora = LocalDateTime.now();
     }
 
+    // ---------- Getters ----------
     public int getNumero()              { return numero; }
     public List<ItemPedido> getItens()  { return itens; }
     public Estado getEstado()           { return estado; }
@@ -31,6 +36,10 @@ public class Pedido {
 
     public boolean isAberto()  { return estado == Estado.ABERTO; }
 
+    /**
+     * Adiciona um item ao pedido.
+     * Se o produto já existir, incrementa a quantidade.
+     */
     public void adicionarItem(ItemPedido novoItem) {
         for (ItemPedido item : itens) {
             if (item.getProduto().getId() == novoItem.getProduto().getId()) {
@@ -41,10 +50,16 @@ public class Pedido {
         itens.add(novoItem);
     }
 
+    /**
+     * Remove um item do pedido pelo ID do produto.
+     */
     public boolean removerItem(int idProduto) {
         return itens.removeIf(item -> item.getProduto().getId() == idProduto);
     }
 
+    /**
+     * Calcula o total do pedido somando todos os subtotais.
+     */
     public double calcularTotal() {
         double total = 0;
         for (ItemPedido item : itens) {
@@ -62,8 +77,7 @@ public class Pedido {
     }
 
     public String resumo() {
-        String badge = estado == Estado.ABERTO ? "ABERTO" : "FECHADO";
-        return String.format("  #%03d  %-15s  %d item(s)  Kz %.2f  [%s]",
-                numero, nomeCliente, itens.size(), calcularTotal(), badge);
+        return String.format("Pedido #%03d  |  Cliente: %-15s  |  Itens: %d  |  Total: Kz %.2f  |  %s",
+                numero, nomeCliente, itens.size(), calcularTotal(), estado);
     }
 }
