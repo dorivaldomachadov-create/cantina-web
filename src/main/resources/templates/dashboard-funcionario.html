@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Funcionário</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="dashboard-header">
+        <h2>Cantina Gestão</h2>
+        <div class="user-info">
+            <span>Bem-vindo, <strong sec:authentication="name"></strong></span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h1>Dashboard - Funcionário</h1>
+            <p>Você tem acesso limitado ao sistema.</p>
+        </div>
+
+        <div class="menu">
+            <a href="/vendas/nova">Nova Venda</a>
+            <a href="/estoque">Ver Estoque</a>
+        </div>
+
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-btn">Sair do Sistema</button>
+        </form>
+    </div>
+</body>
+</html>
