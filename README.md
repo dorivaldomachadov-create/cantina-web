@@ -82,23 +82,46 @@ cd cantina-gestao
 ## 📁 Estrutura de Pastas
 
 ```
-src/main/java/com/cantina/
-├── config/
-│   └── SecurityConfig.java
-├── controller/
-│   ├── AuthController.java
-│   └── DashboardController.java
-├── modelo/
-├── repositorio/
-├── servico/
-└── CantinaWebApplication.java
-
-src/main/resources/
-├── static/css/style.css
-└── templates/
-    ├── login.html
-    ├── dashboard-funcionario.html
-    └── dashboard-gerente.html
+cantina-web/
+├── src/main/java/com/cantina/
+│   ├── modelo/
+│   │   ├── Produto.java          ← igual ao original
+│   │   ├── Bebida.java           ← igual ao original
+│   │   ├── Comida.java           ← igual ao original
+│   │   ├── ItemVenda.java        ← NOVO (era ItemPedido)
+│   │   ├── Venda.java            ← NOVO (substitui Pedido)
+│   │   └── Utilizador.java       ← NOVO (Funcionário/Gerente)
+│   ├── repositorio/
+│   │   ├── ProdutoRepositorio.java    ← igual ao original
+│   │   ├── VendaRepositorio.java      ← NOVO
+│   │   └── UtilizadorRepositorio.java ← NOVO
+│   ├── servico/
+│   │   ├── EstoqueServico.java        ← adaptado
+│   │   ├── VendaServico.java          ← NOVO
+│   │   └── RelatorioServico.java      ← NOVO (só Gerente)
+│   ├── controller/
+│   │   ├── AuthController.java        ← NOVO (login/logout)
+│   │   ├── DashboardController.java   ← NOVO (página inicial por perfil)
+│   │   ├── VendaController.java       ← NOVO
+│   │   ├── EstoqueController.java     ← NOVO
+│   │   ├── CardapioController.java    ← NOVO (só Gerente)
+│   │   └── RelatorioController.java   ← NOVO (só Gerente)
+│   └── config/
+│       └── SecurityConfig.java        ← NOVO (Spring Security)
+├── src/main/resources/
+│   ├── templates/
+│   │   ├── login.html
+│   │   ├── dashboard-funcionario.html
+│   │   ├── dashboard-gerente.html
+│   │   ├── venda.html
+│   │   ├── estoque.html
+│   │   ├── historico.html         ← só Gerente
+│   │   ├── relatorios.html        ← só Gerente
+│   │   └── fatura.html
+│   └── static/
+│       ├── css/style.css
+│       └── js/venda.js
+└── pom.xml
 ```
 
 ---
