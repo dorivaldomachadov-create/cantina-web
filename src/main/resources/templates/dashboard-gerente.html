@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Gerente</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="dashboard-header">
+        <h2>Cantina Gestão</h2>
+        <div class="user-info">
+            <span>Bem-vindo, <strong sec:authentication="name"></strong> <span style="color:#ffd700;">(Gerente)</span></span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h1>Dashboard - Gerente</h1>
+            <p>Acesso total ao sistema de gestão.</p>
+        </div>
+
+        <div class="menu">
+            <a href="/vendas/nova">Nova Venda</a>
+            <a href="/estoque">Ver Estoque</a>
+            <a href="/cardapio">Gerir Cardápio</a>
+            <a href="/historico">Histórico de Vendas</a>
+            <a href="/relatorios">Relatórios</a>
+        </div>
+
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-btn">Sair do Sistema</button>
+        </form>
+    </div>
+</body>
+</html>
