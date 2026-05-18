@@ -51,7 +51,7 @@ cd cantina-gestao
 | Perfil       | Utilizador     | Senha   |
 |--------------|----------------|---------|
 | Funcionário  | `funcionario`  | `1234`  |
-| Gerente      | `gerente`      | `1234`  |
+| Gerente      | `gerente`      | `admin` |
 
 ---
 
