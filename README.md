@@ -1,31 +1,136 @@
-# Read Me First
-The following was discovered as part of building this project:
+# Sistema de Gestão de Cantina - v2.0
 
-* The original package name 'com.cantina.cantina-web' is invalid and this project uses 'com.cantina.cantina_web' instead.
+Sistema interno de gestão para cantina escolar/empresa.  
+**Uso exclusivo de funcionários e gerente.**
 
-# Getting Started
+**Versão atual:** 2.0 (Modelo Caixa de Supermercado)
 
-### Reference Documentation
-For further reference, please consider the following sections:
+---
 
-* [Official Apache Maven documentation](https://maven.apache.org/guides/index.html)
-* [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/4.0.6/maven-plugin)
-* [Create an OCI image](https://docs.spring.io/spring-boot/4.0.6/maven-plugin/build-image.html)
-* [Thymeleaf](https://docs.spring.io/spring-boot/4.0.6/reference/web/servlet.html#web.servlet.spring-mvc.template-engines)
-* [Spring Web](https://docs.spring.io/spring-boot/4.0.6/reference/web/servlet.html)
+## 📋 Sobre o Projeto
 
-### Guides
-The following guides illustrate how to use some features concretely:
+Este sistema foi desenvolvido para gerir uma cantina de forma **interna**. O cliente **não** interage diretamente com o software. O funcionário é quem opera o sistema (regista vendas, controla stock, etc.).
 
-* [Handling Form Submission](https://spring.io/guides/gs/handling-form-submission/)
-* [Building a RESTful Web Service](https://spring.io/guides/gs/rest-service/)
-* [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)
-* [Building REST services with Spring](https://spring.io/guides/tutorials/rest/)
+### Principais Funcionalidades
+- Login com dois níveis de acesso (Funcionário e Gerente)
+- Realização de vendas (modelo caixa)
+- Controlo completo de estoque
+- Gestão de cardápio (apenas Gerente)
+- Histórico de vendas
+- Relatórios (apenas Gerente)
+- Sistema de segurança com Spring Security
 
-### Maven Parent overrides
+---
 
-Due to Maven's design, elements are inherited from the parent POM to the project POM.
-While most of the inheritance is fine, it also inherits unwanted elements like `<license>` and `<developers>` from the parent.
-To prevent this, the project POM contains empty overrides for these elements.
-If you manually switch to a different parent and actually want the inheritance, you need to remove those overrides.
+## 🚀 Como Executar o Projeto
 
+### Pré-requisitos
+- Java 17
+- Maven
+
+### Passos
+
+1. Clone o repositório:
+```bash
+git clone https://github.com/SEU_USUARIO/cantina-gestao.git
+cd cantina-gestao
+```
+
+2. Execute o projeto:
+```bash
+./mvnw spring-boot:run -DskipTests
+```
+
+3. Acesse no navegador:
+   **http://localhost:8080/login**
+
+---
+
+## 👤 Utilizadores de Teste
+
+| Perfil       | Utilizador     | Senha   |
+|--------------|----------------|---------|
+| Funcionário  | `funcionario`  | `1234`  |
+| Gerente      | `gerente`      | `1234`  |
+
+---
+
+## 🔐 Níveis de Acesso
+
+| Funcionalidade           | Funcionário | Gerente |
+|--------------------------|-------------|---------|
+| Realizar Venda           | Sim         | Sim     |
+| Ver Estoque              | Sim         | Sim     |
+| Gerir Cardápio           | Não         | Sim     |
+| Repor Stock              | Não         | Sim     |
+| Cancelar Venda           | Não         | Sim     |
+| Ver Histórico Completo   | Não         | Sim     |
+| Ver Relatórios           | Não         | Sim     |
+
+---
+
+## 🛠 Tecnologias Utilizadas
+
+- **Backend**: Spring Boot 3.3.4
+- **Frontend**: Thymeleaf + HTML5 + CSS3
+- **Segurança**: Spring Security
+- **Build**: Maven
+- **Java**: 17
+
+---
+
+## 📁 Estrutura de Pastas
+
+```
+src/main/java/com/cantina/
+├── config/
+│   └── SecurityConfig.java
+├── controller/
+│   ├── AuthController.java
+│   └── DashboardController.java
+├── modelo/
+├── repositorio/
+├── servico/
+└── CantinaWebApplication.java
+
+src/main/resources/
+├── static/css/style.css
+└── templates/
+    ├── login.html
+    ├── dashboard-funcionario.html
+    └── dashboard-gerente.html
+```
+
+---
+
+## 📋 Regras do Git (Obrigatórias)
+
+- **Nunca** trabalhar diretamente na branch `main`
+- Criar branch para cada funcionalidade: `feature/nome-da-tarefa`
+- Commits pequenos e com mensagens claras
+- Fazer Pull Request para revisão antes de merge
+- Atualizar sempre com `git pull origin main` antes de começar
+
+---
+
+## 👥 Equipa
+
+- **Dorivaldo Machado** — Líder do Projeto (Setup + Security)
+- Flejon — Cardápio e Estoque
+- Eduardo — Venda e Fatura
+- Pitra — Interface e Layout
+- Elias — Relatórios e Testes
+
+---
+
+## 📌 Próximos Passos
+
+- Implementação completa do módulo de Vendas
+- Controlo de Estoque
+- Relatórios
+- Melhorias na interface
+
+---
+
+**Desenvolvido por Dorivaldo Machado**  
+**Para uso interno da Cantina**
