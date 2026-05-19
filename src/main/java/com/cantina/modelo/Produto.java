@@ -1,39 +1,34 @@
-package cantina.modelo;
+package com.cantina.modelo;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "cantina")
 public class Produto {
 
-    private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
     private String nome;
-    private double preco;
-    private int quantidadeEstoque;
     private String categoria;
+    private double preco;
 
-    public Produto(int id, String nome, double preco, int quantidadeEstoque, String categoria) {
-        this.id = id;
-        this.nome = nome;
-        this.preco = preco;
-        this.quantidadeEstoque = quantidadeEstoque;
-        this.categoria = categoria;
-    }
+    @Column(name = "quantidade_estoque")
+    private int quantidadeEstoque;
 
-    public int getId()                  { return id; }
-    public String getNome()             { return nome; }
-    public double getPreco()            { return preco; }
-    public int getQuantidadeEstoque()   { return quantidadeEstoque; }
-    public String getCategoria()        { return categoria; }
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
 
-    public void setNome(String nome)                        { this.nome = nome; }
-    public void setPreco(double preco)                      { this.preco = preco; }
-    public void setQuantidadeEstoque(int qtd)               { this.quantidadeEstoque = qtd; }
-    public void setCategoria(String categoria)              { this.categoria = categoria; }
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
 
-    public String descricao() {
-        return String.format("[%d] %-26s Kz %8.2f  |  Estoque: %2d  |  %s",
-                id, nome, preco, quantidadeEstoque, categoria);
-    }
+    public String getCategoria() { return categoria; }
+    public void setCategoria(String categoria) { this.categoria = categoria; }
 
-    @Override
-    public String toString() {
-        return descricao();
-    }
+    public double getPreco() { return preco; }
+    public void setPreco(double preco) { this.preco = preco; }
+
+    public int getQuantidadeEstoque() { return quantidadeEstoque; }
+    public void setQuantidadeEstoque(int quantidadeEstoque) { this.quantidadeEstoque = quantidadeEstoque; }
 }
