@@ -1,32 +1,110 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <title>Dashboard - Funcionário</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — Funcionário</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
 </head>
 <body>
-    <div class="dashboard-header">
-        <h2>Cantina Gestão</h2>
-        <div class="user-info">
-            <span>Bem-vindo, <strong sec:authentication="name"></strong></span>
-        </div>
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark"><i class="fas fa-utensils"></i></div>
+      <span class="logo-text">Cantina</span>
     </div>
 
-    <div class="container">
-        <div class="card">
-            <h1>Dashboard - Funcionário</h1>
-            <p>Você tem acesso limitado ao sistema.</p>
-        </div>
+    <nav class="sidebar-nav">
+      <div class="nav-group-label">Principal</div>
+      <a href="/dashboard"   class="nav-link active"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a href="/vendas/nova" class="nav-link"><i class="fas fa-cash-register"></i> Realizar Venda</a>
+      <a href="/estoque"     class="nav-link"><i class="fas fa-boxes-stacked"></i> Ver Estoque</a>
 
-        <div class="menu">
-            <a href="/vendas/nova">Nova Venda</a>
-            <a href="/estoque">Ver Estoque</a>
-        </div>
+      <div class="nav-group-label" style="margin-top:14px;">Área do Gerente</div>
+      <span class="nav-link locked"><i class="fas fa-book-open"></i> Cardápio <span class="nav-badge"><i class="fas fa-lock"></i></span></span>
+      <span class="nav-link locked"><i class="fas fa-clock-rotate-left"></i> Histórico <span class="nav-badge"><i class="fas fa-lock"></i></span></span>
+      <span class="nav-link locked"><i class="fas fa-chart-bar"></i> Relatórios <span class="nav-badge"><i class="fas fa-lock"></i></span></span>
+    </nav>
 
-        <form th:action="@{/logout}" method="post">
-            <button type="submit" class="logout-btn">Sair do Sistema</button>
+    <div class="sidebar-footer">
+      <div class="user-widget">
+        <div class="user-avatar" th:text="${#strings.toUpperCase(#strings.substring(nomeUtilizador,0,1))}">F</div>
+        <div>
+          <div class="user-name" th:text="${nomeUtilizador}">Funcionário</div>
+          <div class="user-role">Funcionário</div>
+        </div>
+        <form th:action="@{/logout}" method="post" style="margin:0;margin-left:auto">
+          <button type="submit" class="btn-logout" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
         </form>
+      </div>
     </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>Dashboard</h1>
+        <p>Bem-vindo ao sistema, <span th:text="${nomeUtilizador}">Funcionário</span></p>
+      </div>
+      <div class="topbar-right">
+        <button class="icon-btn" onclick="toggleTheme()" title="Tema"><i class="fas fa-moon" id="theme-icon"></i></button>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon blue"><i class="fas fa-receipt"></i></div>
+          <div class="stat-info">
+            <div class="stat-value" th:text="${vendasHoje != null ? vendasHoje : 0}">0</div>
+            <div class="stat-label">Vendas hoje</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><i class="fas fa-coins"></i></div>
+          <div class="stat-info">
+            <div class="stat-value" th:text="${totalTurno != null ? 'Kz ' + totalTurno : 'Kz 0'}">Kz 0</div>
+            <div class="stat-label">Total do turno</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange"><i class="fas fa-boxes-stacked"></i></div>
+          <div class="stat-info">
+            <div class="stat-value" th:text="${totalProdutos != null ? totalProdutos : '—'}">—</div>
+            <div class="stat-label">Produtos em stock</div>
+          </div>
+        </div>
+      </div>
+
+      <p class="card-title mb-16">Acesso Rápido</p>
+      <div class="action-grid">
+        <a href="/vendas/nova" class="action-card">
+          <div class="ac-icon stat-icon blue"><i class="fas fa-cash-register"></i></div>
+          <div class="ac-title">Nova Venda</div>
+          <div class="ac-desc">Registar itens e emitir fatura para um cliente</div>
+          <div class="ac-arrow">Abrir &rarr;</div>
+        </a>
+        <a href="/estoque" class="action-card">
+          <div class="ac-icon stat-icon green"><i class="fas fa-boxes-stacked"></i></div>
+          <div class="ac-title">Ver Estoque</div>
+          <div class="ac-desc">Consultar quantidades disponíveis de cada produto</div>
+          <div class="ac-arrow">Abrir &rarr;</div>
+        </a>
+      </div>
+
+      <div class="alert alert-info">
+        <i class="fas fa-shield-halved"></i>
+        <span>Cardápio, Histórico completo, Relatórios e Reposição de stock são exclusivos do Gerente.</span>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/venda.js}"></script>
 </body>
 </html>
