@@ -1,56 +1,34 @@
 package com.cantina.modelo;
+
 import jakarta.persistence.*;
 
-import java.util.Scanner;
 @Entity
-@Table(name="cantina")
+@Table(name = "cantina")
 public class Produto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    private String nome;
     private String categoria;
-    private String marca;
     private double preco;
-    private int quantidade;
 
+    @Column(name = "quantidade_estoque")
+    private int quantidadeEstoque;
 
-    public int getQuantidade() {
-        return quantidade;
-    }
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
 
-    public void setQuantidade(int quantidade) {
-        this.quantidade = quantidade;
-    }
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
 
-    public double getPreco() {
-        return preco;
-    }
+    public String getCategoria() { return categoria; }
+    public void setCategoria(String categoria) { this.categoria = categoria; }
 
-    public void setPreco(double preco) {
-        this.preco = preco;
-    }
+    public double getPreco() { return preco; }
+    public void setPreco(double preco) { this.preco = preco; }
 
-    public int getId() {
-        return id;
-    }
-
-
-
-    public String getMarca() {
-        return marca;
-    }
-
-    public void setMarca(String marca) {
-        this.marca = marca;
-    }
-
-    public String getCategoria() {
-        return categoria;
-    }
-
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
-    }
-
+    public int getQuantidadeEstoque() { return quantidadeEstoque; }
+    public void setQuantidadeEstoque(int quantidadeEstoque) { this.quantidadeEstoque = quantidadeEstoque; }
 }

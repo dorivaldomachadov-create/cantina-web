@@ -63,6 +63,7 @@ public class SecurityConfig {
 
         return new InMemoryUserDetailsManager(funcionario, gerente);
     }
+    
 
     @Bean
     public PasswordEncoder passwordEncoder() {
