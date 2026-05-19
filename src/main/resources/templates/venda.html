@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nova Venda — Cantina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark"><i class="fas fa-utensils"></i></div>
+      <span class="logo-text">Cantina</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-group-label">Principal</div>
+      <a href="/dashboard"   class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a href="/vendas/nova" class="nav-link active"><i class="fas fa-cash-register"></i> Realizar Venda</a>
+      <a href="/estoque"     class="nav-link"><i class="fas fa-boxes-stacked"></i> Ver Estoque</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-widget">
+        <div class="user-avatar" th:text="${#strings.toUpperCase(#strings.substring(nomeUtilizador,0,1))}">F</div>
+        <div>
+          <div class="user-name" th:text="${nomeUtilizador}">Utilizador</div>
+          <div class="user-role" th:text="${perfil}">Funcionário</div>
+        </div>
+        <form th:action="@{/logout}" method="post" style="margin:0;margin-left:auto">
+          <button type="submit" class="btn-logout"><i class="fas fa-sign-out-alt"></i></button>
+        </form>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>Realizar Venda</h1>
+        <p th:text="${venda != null ? 'Venda #' + venda.numero : 'Nova venda'}">Nova venda</p>
+      </div>
+      <div class="topbar-right">
+        <a href="/dashboard" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Voltar</a>
+        <button class="icon-btn" onclick="toggleTheme()"><i class="fas fa-moon" id="theme-icon"></i></button>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <div th:if="${erro}" class="alert alert-danger">
+        <i class="fas fa-circle-xmark"></i>
+        <span th:text="${erro}"></span>
+      </div>
+
+      <div th:if="${venda == null}">
+        <div class="card" style="max-width:480px">
+          <div class="card-header"><span class="card-title">Iniciar Venda</span></div>
+          <div class="card-body">
+            <form th:action="@{/vendas/nova}" method="post">
+              <div class="form-group">
+                <label class="form-label">Nome do cliente (opcional)</label>
+                <div class="input-group">
+                  <i class="input-icon fas fa-user"></i>
+                  <input class="form-control" type="text" name="nomeCliente" placeholder="Ex: Mesa 3 / João" autofocus/>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary btn-block">
+                <i class="fas fa-plus"></i> Criar Venda
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div th:if="${venda != null}" class="venda-layout">
+
+        <div>
+          <div class="card mb-16">
+            <div class="card-header">
+              <span class="card-title"><i class="fas fa-magnifying-glass"></i> Adicionar Produto</span>
+            </div>
+            <div class="card-body">
+              <form th:action="@{'/vendas/' + ${venda.numero} + '/item'}" method="post" id="form-busca">
+                <div class="search-bar-row">
+                  <div class="input-group" style="max-width:120px">
+                    <i class="input-icon fas fa-hashtag"></i>
+                    <input class="form-control" type="number" id="idProduto" name="idProduto" placeholder="ID" min="1"/>
+                  </div>
+                  <div class="input-group">
+                    <i class="input-icon fas fa-search"></i>
+                    <input class="form-control" type="text" id="nomeProduto" name="nomeProduto" placeholder="Ou pesquisar por nome..."/>
+                  </div>
+                  <div class="input-group" style="max-width:100px">
+                    <i class="input-icon fas fa-layer-group"></i>
+                    <input class="form-control qty-input" type="number" name="quantidade" value="1" min="1"/>
+                  </div>
+                  <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Adicionar</button>
+                </div>
+              </form>
+
+              <div th:if="${resultadoBusca != null}" style="margin-top:12px">
+                <div class="product-hit">
+                  <div>
+                    <div class="ph-name" th:text="${resultadoBusca.nome}">Produto</div>
+                    <div class="ph-cat" th:text="${resultadoBusca.categoria}">Categoria</div>
+                  </div>
+                  <div class="ph-price" th:text="'Kz ' + ${resultadoBusca.preco}">Kz 0</div>
+                </div>
+              </div>
+
+              <div th:if="${erroBusca}" class="alert alert-warning" style="margin-top:12px;margin-bottom:0">
+                <i class="fas fa-triangle-exclamation"></i>
+                <span th:text="${erroBusca}"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Cardápio Disponível</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>ID</th><th>Produto</th><th>Categoria</th><th>Preço</th><th>Stock</th></tr>
+                </thead>
+                <tbody>
+                  <tr th:each="p : ${produtos}" th:if="${p.quantidadeEstoque > 0}">
+                    <td><strong th:text="'#' + p.id">1</strong></td>
+                    <td><strong th:text="${p.nome}">—</strong></td>
+                    <td th:text="${p.categoria}">—</td>
+                    <td class="text-primary fw-700" th:text="'Kz ' + ${p.preco}">0</td>
+                    <td>
+                      <div class="stock-bar">
+                        <div class="stock-dot" th:classappend="${p.quantidadeEstoque <= 3 ? 'low' : 'ok'}"></div>
+                        <span th:text="${p.quantidadeEstoque} + ' un'">0</span>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="resumo-venda">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">
+                <i class="fas fa-receipt"></i>
+                Venda <span th:text="'#' + venda.numero">#000</span>
+              </span>
+              <span class="badge badge-warning" th:if="${venda.estado.name() == 'ABERTA'}">Aberta</span>
+            </div>
+            <div class="card-body">
+              <div th:if="${venda.nomeCliente != null and !venda.nomeCliente.isEmpty()}" style="margin-bottom:16px;font-size:13px;color:var(--text-muted)">
+                <i class="fas fa-user"></i> <span th:text="${venda.nomeCliente}">Cliente</span>
+              </div>
+
+              <div th:if="${#lists.isEmpty(venda.itens)}" class="text-muted" style="font-size:13px;padding:8px 0">
+                Nenhum item adicionado ainda.
+              </div>
+
+              <div th:each="item : ${venda.itens}" class="resumo-item">
+                <div>
+                  <div class="ri-name" th:text="${item.produto.nome}">Produto</div>
+                  <div class="ri-qty" th:text="${item.quantidade} + 'x  Kz ' + ${item.produto.preco}">1x Kz 0</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <span class="ri-sub" th:text="'Kz ' + ${item.calcularSubtotal()}">Kz 0</span>
+                  <form th:action="@{'/vendas/' + ${venda.numero} + '/remover'}" method="post" onsubmit="return confirmarRemover(this)">
+                    <input type="hidden" name="idProduto" th:value="${item.produto.id}"/>
+                    <button type="submit" class="btn-remove-item"><i class="fas fa-xmark"></i></button>
+                  </form>
+                </div>
+              </div>
+
+              <div class="total-row">
+                <span class="total-label">Total</span>
+                <span class="total-value" th:text="'Kz ' + ${venda.calcularTotal()}">Kz 0</span>
+              </div>
+
+              <div style="margin-top:20px;display:flex;flex-direction:column;gap:10px">
+                <form th:action="@{'/vendas/' + ${venda.numero} + '/finalizar'}" method="post">
+                  <button type="submit" class="btn btn-success btn-block btn-lg" th:disabled="${#lists.isEmpty(venda.itens)}">
+                    <i class="fas fa-check"></i> Finalizar e Emitir Fatura
+                  </button>
+                </form>
+                <button class="btn btn-outline btn-block" onclick="confirmarCancelar('/vendas/' + [[${venda.numero}]] + '/cancelar')">
+                  <i class="fas fa-xmark"></i> Cancelar Venda
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/venda.js}"></script>
+</body>
+</html>
