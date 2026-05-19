@@ -1,10 +1,10 @@
-package cantina.modelo;
+//package cantina.modelo;
 
 /**
  * Subclasse de Produto para bebidas.
  * Adiciona o atributo "gelada".
  */
-public class Bebida extends Produto {
+/*public class Bebida extends Produto {
 
     private boolean gelada;
 
@@ -23,3 +23,4 @@ public class Bebida extends Produto {
                 getId(), getNome(), getPreco(), getQuantidadeEstoque(), estado);
     }
 }
+*/

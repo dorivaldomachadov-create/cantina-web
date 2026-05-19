@@ -1,6 +1,6 @@
-package cantina.modelo;
+//package cantina.modelo;
 
-import java.time.LocalDateTime;
+//import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.List;
  * Representa um pedido feito na cantina.
  * Contém uma lista de itens e o estado (aberto / fechado).
  */
-public class Pedido {
+/*public class Pedido {
 
     public enum Estado { ABERTO, FECHADO }
 
@@ -34,13 +34,13 @@ public class Pedido {
     public LocalDateTime getDataHora()  { return dataHora; }
     public String getNomeCliente()      { return nomeCliente; }
 
-    public boolean isAberto()  { return estado == Estado.ABERTO; }
+    public boolean isAberto()  { return estado == Estado.ABERTO; }*/
 
     /**
      * Adiciona um item ao pedido.
      * Se o produto já existir, incrementa a quantidade.
      */
-    public void adicionarItem(ItemPedido novoItem) {
+    /*public void adicionarItem(ItemPedido novoItem) {
         for (ItemPedido item : itens) {
             if (item.getProduto().getId() == novoItem.getProduto().getId()) {
                 item.setQuantidade(item.getQuantidade() + novoItem.getQuantidade());
@@ -48,19 +48,19 @@ public class Pedido {
             }
         }
         itens.add(novoItem);
-    }
+    }*/
 
     /**
      * Remove um item do pedido pelo ID do produto.
      */
-    public boolean removerItem(int idProduto) {
+    /*public boolean removerItem(int idProduto) {
         return itens.removeIf(item -> item.getProduto().getId() == idProduto);
-    }
+    }*/
 
     /**
      * Calcula o total do pedido somando todos os subtotais.
      */
-    public double calcularTotal() {
+    /*public double calcularTotal() {
         double total = 0;
         for (ItemPedido item : itens) {
             total += item.calcularSubtotal();
@@ -81,3 +81,4 @@ public class Pedido {
                 numero, nomeCliente, itens.size(), calcularTotal(), estado);
     }
 }
+*/

@@ -1,10 +1,10 @@
-package cantina.modelo;
+//package cantina.modelo;
 
 /**
  * Subclasse de Produto para comidas.
  * Adiciona o atributo "vegetariana".
  */
-public class Comida extends Produto {
+/*public class Comida extends Produto {
 
     private boolean vegetariana;
 
@@ -23,3 +23,4 @@ public class Comida extends Produto {
                 getId(), getNome(), getPreco(), getQuantidadeEstoque(), tipo);
     }
 }
+*/
