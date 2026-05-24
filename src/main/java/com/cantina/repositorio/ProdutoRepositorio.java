@@ -9,6 +9,9 @@ import java.util.List;
 @Repository
 public interface ProdutoRepositorio extends JpaRepository<Produto, Integer> {
 
+    // Para listar no ecrã apenas os produtos que estão ativos
+    List<Produto> findByAtivoTrue();
+
     List<Produto> findByQuantidadeEstoqueGreaterThan(int quantidade);
 
     List<Produto> findByQuantidadeEstoqueBetween(int min, int max);

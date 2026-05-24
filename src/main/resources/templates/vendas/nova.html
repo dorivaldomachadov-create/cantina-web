@@ -191,7 +191,8 @@
                                     </button>
                                 </form>
 
-                                <button class="btn btn-outline btn-block" onclick="confirmarCancelar('/vendas/' + [[${venda.id}]] + '/cancelar')">
+                                <button class="btn btn-outline btn-block"
+                                        th:onclick="|confirmarCancelar('/vendas/${venda.id}/cancelar')|">
                                     <i class="fas fa-xmark"></i> Cancelar Venda
                                 </button>
                             </div>

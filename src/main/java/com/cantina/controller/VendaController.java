@@ -24,11 +24,10 @@ public class VendaController {
     @GetMapping("/nova")
     public String abrirCaixa(Model model) {
         model.addAttribute("produtos", produtoRepositorio.findAll());
-        model.addAttribute("venda", null); // Inicia a tela sem nenhuma venda ativa
+        model.addAttribute("venda", null);
         return "vendas/nova";
     }
 
-    // Cria a venda em aberto (Acaba com o NullPointerException!)
     @PostMapping("/nova")
     public String iniciarNovaVenda(@RequestParam(required = false) String nomeCliente, Model model) {
         try {
@@ -41,7 +40,6 @@ public class VendaController {
         return "vendas/nova";
     }
 
-    // Adiciona o item à venda atual
     @PostMapping("/{id}/item")
     public String adicionarItem(@PathVariable Integer id,
                                 @RequestParam(required = false) Integer idProduto,
@@ -55,13 +53,12 @@ public class VendaController {
             model.addAttribute("venda", vendaAtualizada);
         } catch (Exception e) {
             model.addAttribute("erroBusca", e.getMessage());
-            model.addAttribute("venda", vendaServico.buscarPorId(id)); // Mantém a venda na tela
+            model.addAttribute("venda", vendaServico.buscarPorId(id));
         }
         model.addAttribute("produtos", produtoRepositorio.findAll());
         return "vendas/nova";
     }
 
-    // Remove o item da venda atual
     @PostMapping("/{id}/remover")
     public String removerItem(@PathVariable Integer id, @RequestParam Integer idProduto, Model model) {
         try {
@@ -73,14 +70,36 @@ public class VendaController {
         }
         model.addAttribute("produtos", produtoRepositorio.findAll());
         return "vendas/nova";
-
     }
 
-    // Rota para finalizar a venda e abrir a Fatura
+    // Rota para processar o cancelamento da venda
+    @PostMapping("/{id}/cancelar")
+    public String cancelarVenda(@PathVariable Integer id, Model model) {
+        try {
+            vendaServico.cancelarVenda(id);
+            return "redirect:/vendas/nova"; // Redireciona e limpa a tela para uma nova venda
+        } catch (Exception e) {
+            model.addAttribute("erro", "Erro ao cancelar a venda: " + e.getMessage());
+            model.addAttribute("venda", vendaServico.buscarPorId(id));
+            model.addAttribute("produtos", produtoRepositorio.findAll());
+            return "vendas/nova";
+        }
+    }
+
+
+    @GetMapping("/{id}/cancelar")
+    public String cancelarVendaGet(@PathVariable Integer id) {
+        try {
+            vendaServico.cancelarVenda(id);
+        } catch (Exception e) {
+            // Silencioso ou trate como preferir
+        }
+        return "redirect:/vendas/nova";
+    }
+
     @PostMapping("/{id}/finalizar")
     public String finalizarVenda(@PathVariable Integer id, Model model) {
         try {
-            //  redireciona dinamicamente para a rota da fatura com o ID certo!
             return "redirect:/vendas/" + id + "/fatura";
         } catch (Exception e) {
             model.addAttribute("erro", "Erro ao finalizar a venda: " + e.getMessage());
@@ -97,7 +116,7 @@ public class VendaController {
             return "redirect:/dashboard";
         }
         model.addAttribute("venda", venda);
-        return "vendas/fatura"; // abrir o arquivo fatura.html
+        return "vendas/fatura";
     }
 
     @GetMapping("/historico")
@@ -109,16 +128,12 @@ public class VendaController {
 
         List<Venda> vendas = vendaServico.listarTodas();
 
-        //  Calcula as estatísticas de forma segura
         long totalVendas = vendas.size();
-
         double receitaTotal = vendas.stream()
                 .mapToDouble(Venda::calcularTotal)
                 .sum();
+        long vendasCanceladas = 0;
 
-        long vendasCanceladas = 0; // Fica a zero porque a classe Venda não tem estado de cancelamento
-
-        //  Envia os dados para o Thymeleaf
         model.addAttribute("vendas", vendas);
         model.addAttribute("totalVendas", totalVendas);
         model.addAttribute("receitaTotal", receitaTotal);
@@ -131,7 +146,6 @@ public class VendaController {
 
         return "vendas/historico";
     }
-
 }
 
 
