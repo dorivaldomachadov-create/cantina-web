@@ -1,17 +1,14 @@
 package com.cantina.servico;
 
-import com.cantina.dto.ItemVendaRequest;
-import com.cantina.dto.VendaRequest;
 import com.cantina.modelo.ItemVenda;
 import com.cantina.modelo.Produto;
 import com.cantina.modelo.Venda;
 import com.cantina.repositorio.ProdutoRepositorio;
 import com.cantina.repositorio.VendaRepositorio;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,46 +23,87 @@ public class VendaServico {
         this.produtoRepositorio = produtoRepositorio;
     }
 
+    // 1. Cria a venda apenas com o nome do cliente e sem produtos
     @Transactional
-    public Venda realizarVenda(VendaRequest request) {
+    public Venda iniciarNovaVenda(String nomeCliente) {
         Venda venda = new Venda();
         venda.setDataHora(LocalDateTime.now());
+        venda.setValorTotal(0.0);
+        venda.setNomeCliente(nomeCliente);
+        return vendaRepositorio.save(venda);
+    }
 
-        List<ItemVenda> itensVenda = new ArrayList<>();
-        double valorTotalVenda = 0.0;
+    // 2. Adiciona um produto à venda aberta e abate o stock
+    @Transactional
+    public Venda adicionarProdutoAVenda(Integer vendaId, Integer produtoId, int quantidade) {
+        Venda venda = vendaRepositorio.findById(vendaId)
+                .orElseThrow(() -> new IllegalArgumentException("Venda não encontrada!"));
 
-        for (ItemVendaRequest itemDto : request.getItens()) {
-            // 1. Procurar o produto na base de dados
-            Produto produto = produtoRepositorio.findById(itemDto.getProdutoId())
-                    .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado! ID: " + itemDto.getProdutoId()));
+        Produto produto = produtoRepositorio.findById(produtoId)
+                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado! ID: " + produtoId));
 
-            // 2. Validar stock disponível
-            if (produto.getQuantidadeEstoque() < itemDto.getQuantidade()) {
-                throw new RuntimeException("Stock insuficiente para o produto: " + produto.getNome()
-                        + " (Disponível: " + produto.getQuantidadeEstoque() + ")");
-            }
-
-            // 3. Atualizar o stock do produto
-            produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() - itemDto.getQuantidade());
-            produtoRepositorio.save(produto); // Guarda a atualização do stock
-
-            // 4. Criar a linha do item da venda
-            ItemVenda item = new ItemVenda();
-            item.setProduto(produto);
-            item.setQuantidade(itemDto.getQuantidade());
-            item.setPrecoUnitario(produto.getPreco()); // Fixa o preço atual
-            item.setVenda(venda);
-
-            itensVenda.add(item);
-
-            // 5. Acumular o valor total
-            valorTotalVenda += item.getPrecoUnitario() * item.getQuantidade();
+        // Validar stock
+        if (produto.getQuantidadeEstoque() < quantidade) {
+            throw new RuntimeException("Stock insuficiente para " + produto.getNome()
+                    + " (Disponível: " + produto.getQuantidadeEstoque() + ")");
         }
 
-        venda.setItens(itensVenda);
-        venda.setValorTotal(valorTotalVenda);
+        // Atualizar stock do produto
+        produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() - quantidade);
+        produtoRepositorio.save(produto);
 
-        // 6. Salvar a venda completa (grava a venda e os itens em cascata)
+        // Verificar se o produto já está no carrinho para apenas somar a quantidade
+        ItemVenda itemExistente = venda.getItens().stream()
+                .filter(item -> item.getProduto().getId().equals(produtoId))
+                .findFirst()
+                .orElse(null);
+
+        if (itemExistente != null) {
+            itemExistente.setQuantidade(itemExistente.getQuantidade() + quantidade);
+        } else {
+            ItemVenda novoItem = new ItemVenda();
+            novoItem.setVenda(venda);
+            novoItem.setProduto(produto);
+            novoItem.setQuantidade(quantidade);
+            novoItem.setPrecoUnitario(produto.getPreco());
+            venda.getItens().add(novoItem);
+        }
+
+        // Atualizar o valor total da venda
+        venda.setValorTotal(venda.calcularTotal());
         return vendaRepositorio.save(venda);
+    }
+
+    // 3. Remove um produto do carrinho e devolve o stock
+    @Transactional
+    public Venda removerProdutoDaVenda(Integer vendaId, Integer produtoId) {
+        Venda venda = vendaRepositorio.findById(vendaId)
+                .orElseThrow(() -> new IllegalArgumentException("Venda não encontrada!"));
+
+        ItemVenda itemRemover = venda.getItens().stream()
+                .filter(item -> item.getProduto().getId().equals(produtoId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Este produto não está na venda!"));
+
+        // Devolver a quantidade ao stock do produto
+        Produto produto = itemRemover.getProduto();
+        produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() + itemRemover.getQuantidade());
+        produtoRepositorio.save(produto);
+
+        // Remover da lista da venda
+        venda.getItens().remove(itemRemover);
+
+        // Atualizar o valor total da venda
+        venda.setValorTotal(venda.calcularTotal());
+        return vendaRepositorio.save(venda);
+    }
+
+    // 4. Método auxiliar para reexibir a venda em caso de erro
+    public Venda buscarPorId(Integer id) {
+        return vendaRepositorio.findById(id).orElse(null);
+    }
+
+    public List<Venda> listarTodas() {
+        return vendaRepositorio.findAll();
     }
 }
