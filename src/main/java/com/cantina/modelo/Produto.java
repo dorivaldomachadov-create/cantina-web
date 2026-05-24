@@ -17,6 +17,11 @@ public class Produto {
     @Column(name = "quantidade_estoque")
     private int quantidadeEstoque;
 
+    // Campo para controlar se o produto está ativo ou "apagado"
+    @Column(name = "ativo")
+    private boolean ativo = true;
+
+    // Getters e Setters existentes...
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 
@@ -31,4 +36,12 @@ public class Produto {
 
     public int getQuantidadeEstoque() { return quantidadeEstoque; }
     public void setQuantidadeEstoque(int quantidadeEstoque) { this.quantidadeEstoque = quantidadeEstoque; }
+
+    // Getter e Setter para a propriedade ativo
+    public boolean isAtivo() {
+        return ativo;
+    }
+    public void setAtivo(boolean ativo) {
+        this.ativo = ativo;
+    }
 }

@@ -1,7 +1,6 @@
 package com.cantina.modelo;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +22,9 @@ public class Venda {
     @Column(name = "nome_cliente")
     private String nomeCliente;
 
-    public String getNomeCliente() { return nomeCliente; }
-    public void setNomeCliente(String nomeCliente) { this.nomeCliente = nomeCliente; }
+    // Campo para armazenar o estado da venda (ABERTA, FECHADA, CANCELADA)
+    @Column(name = "estado")
+    private String estado = "FECHADA";
 
     // O CascadeType.ALL garante que ao salvar a Venda, o JPA salva todos os seus itens automaticamente
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -35,11 +35,9 @@ public class Venda {
     }
 
     public double calcularTotal() {
-        // Se a lista de itens estiver vazia, o total é o valor guardado ou 0
         if (this.itens == null || this.itens.isEmpty()) {
             return this.valorTotal;
         }
-        // Soma o subtotal de todos os itens que estão no carrinho
         return this.itens.stream()
                 .mapToDouble(ItemVenda::calcularSubtotal)
                 .sum();
@@ -56,7 +54,6 @@ public class Venda {
     public LocalDateTime getDataHora() {
         return dataHora;
     }
-
     public void setDataHora(LocalDateTime dataHora) {
         this.dataHora = dataHora;
     }
@@ -68,12 +65,25 @@ public class Venda {
         this.valorTotal = valorTotal;
     }
 
+    public String getNomeCliente() {
+        return nomeCliente;
+    }
+    public void setNomeCliente(String nomeCliente) {
+        this.nomeCliente = nomeCliente;
+    }
+
+    // Getter e Setter para o Thymeleaf conseguir ler o estado
+    public String getEstado() {
+        return estado;
+    }
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
     public List<ItemVenda> getItens() {
         return itens;
     }
     public void setItens(List<ItemVenda> itens) {
         this.itens = itens;
     }
-
-
 }
