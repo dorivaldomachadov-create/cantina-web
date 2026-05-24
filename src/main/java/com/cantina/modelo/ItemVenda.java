@@ -29,6 +29,10 @@ public class ItemVenda {
     public ItemVenda() {
     }
 
+    public double calcularSubtotal() {
+        return this.quantidade * this.precoUnitario;
+    }
+
     // Getters e Setters
     public Integer getId() {
         return id;
