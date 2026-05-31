@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sobre — Cantina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+  <style>
+    body{margin:0;display:flex;flex-direction:column;min-height:100vh;background:var(--bg)}
+    .pub-nav{height:64px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 32px;justify-content:space-between}
+    .pub-logo{display:flex;align-items:center;gap:11px}
+    .pub-logo .logo-mark{width:34px;height:34px;background:var(--primary);border-radius:9px;display:grid;place-items:center;color:#fff;font-size:15px}
+    .wrap{max-width:780px;margin:0 auto;padding:60px 24px}
+    .theme-fab{position:fixed;top:14px;right:14px;width:38px;height:38px;border-radius:50%;border:1.5px solid var(--border);background:var(--surface);box-shadow:var(--shadow);display:grid;place-items:center;font-size:15px;color:var(--text-secondary);cursor:pointer;transition:all var(--transition);z-index:999}
+    .theme-fab:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
+  </style>
+</head>
+<body>
+<button class="theme-fab" onclick="toggleTheme()"><i class="fas fa-moon" id="theme-icon"></i></button>
+<nav class="pub-nav">
+  <div class="pub-logo">
+    <div class="logo-mark"><i class="fas fa-utensils"></i></div>
+    <span style="font-size:16px;font-weight:800">Cantina</span>
+  </div>
+  <div style="display:flex;gap:10px">
+    <a th:href="@{/inicio}" class="btn btn-ghost btn-sm"><i class="fas fa-arrow-left"></i> Início</a>
+    <a th:href="@{/login}" class="btn btn-primary btn-sm"><i class="fas fa-right-to-bracket"></i> Entrar</a>
+  </div>
+</nav>
+<div class="wrap">
+  <div style="text-align:center;margin-bottom:48px">
+    <div style="width:68px;height:68px;background:var(--primary);border-radius:18px;display:grid;place-items:center;font-size:30px;color:#fff;margin:0 auto 18px">
+      <i class="fas fa-utensils"></i>
+    </div>
+    <h1 style="font-size:32px;font-weight:800;margin-bottom:8px">Sobre o Projeto</h1>
+    <p style="color:var(--text-muted);font-size:15px">Sistema de Gestão de Cantina</p>
+  </div>
+
+  <div class="card" style="margin-bottom:18px">
+    <div class="card-header"><span class="card-title"><i class="fas fa-circle-info text-brand"></i> O que é</span></div>
+    <div class="card-body">
+      <p style="font-size:14px;color:var(--text-secondary);line-height:1.8">Sistema interno de gestão de cantina desenvolvido com Java e Spring Boot. Permite gerir vendas, estoque, funcionários e relatórios de forma completa. Utiliza base de dados H2 persistida em ficheiro para manter os dados entre reinícios do servidor.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:18px">
+    <div class="card-header"><span class="card-title"><i class="fas fa-layer-group text-brand"></i> Stack Tecnológico</span></div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">
+        <div th:each="tech : ${ {'Java 17','Spring Boot 3.3','Spring Security','Thymeleaf','Spring Data JPA','H2 Database'} }"
+             style="padding:11px 14px;background:var(--primary-light);color:var(--primary);border-radius:var(--radius-sm);font-size:13px;font-weight:600;text-align:center"
+             th:text="${tech}">Tech</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:36px">
+    <a th:href="@{/login}" class="btn btn-primary btn-lg"><i class="fas fa-right-to-bracket"></i> Entrar no Sistema</a>
+  </div>
+</div>
+<script th:src="@{/js/venda.js}"></script>
+</body>
+</html>

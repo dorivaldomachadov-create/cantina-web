@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Produto — Cantina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark"><i class="fas fa-utensils"></i></div>
+      <span class="logo-text">Cantina</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-group-label">Principal</div>
+      <a href="/dashboard"    class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a href="/vendas/nova"  class="nav-link"><i class="fas fa-cash-register"></i> Nova Venda</a>
+      <a href="/estoque"      class="nav-link"><i class="fas fa-boxes-stacked"></i> Estoque</a>
+      <div class="nav-group-label" style="margin-top:12px">Gestão</div>
+      <a href="/cardapio"     class="nav-link active"><i class="fas fa-book-open"></i> Cardápio</a>
+      <a href="/vendas/historico" class="nav-link"><i class="fas fa-clock-rotate-left"></i> Histórico</a>
+      <a href="/relatorios"   class="nav-link"><i class="fas fa-chart-bar"></i> Relatórios</a>
+      <a href="/funcionarios" class="nav-link"><i class="fas fa-users"></i> Funcionários</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-widget">
+        <div class="user-avatar" th:text="${#strings.toUpperCase(#strings.substring(nomeUtilizador,0,1))}">G</div>
+        <div>
+          <div class="user-name" th:text="${nomeUtilizador}">Gerente</div>
+          <div class="user-role">Gerente</div>
+        </div>
+        <form th:action="@{/logout}" method="post" style="margin:0;margin-left:auto">
+          <button type="submit" class="btn-logout"><i class="fas fa-sign-out-alt"></i></button>
+        </form>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-title" th:text="${produto != null ? 'Editar Produto' : 'Novo Produto'}">Produto</div>
+      <div class="topbar-right">
+        <a href="/cardapio" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Voltar</a>
+        <button class="icon-btn" onclick="toggleTheme()"><i class="fas fa-moon" id="theme-icon"></i></button>
+      </div>
+    </header>
+
+    <div class="content">
+      <div th:if="${erro}" class="alert alert-danger"><i class="fas fa-circle-xmark"></i><span th:text="${erro}"></span></div>
+
+      <div class="card" style="max-width:540px;margin:0 auto">
+        <div class="card-header">
+          <span class="card-title" th:text="${produto != null ? 'Editar: ' + produto.nome : 'Adicionar ao Cardápio'}">Produto</span>
+        </div>
+        <div class="card-body">
+          <form th:action="${produto != null ? '/cardapio/editar/' + produto.id : '/cardapio/novo'}" method="post">
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Nome *</label>
+                <input class="form-control" type="text" name="nome" required autofocus
+                       th:value="${produto != null ? produto.nome : ''}" placeholder="Ex: Frango Grelhado"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Preço (Kz) *</label>
+                <div class="input-group">
+                  <i class="input-icon fas fa-coins"></i>
+                  <input class="form-control" type="number" name="preco" step="0.01" min="0" required
+                         th:value="${produto != null ? produto.preco : ''}" placeholder="Ex: 1200"/>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Categoria *</label>
+                <select class="form-control" name="categoria" required>
+                  <option th:each="cat : ${ {'Comida','Bebida','Snack','Outro'} }"
+                          th:value="${cat}" th:text="${cat}"
+                          th:selected="${produto != null and produto.categoria == cat}">—</option>
+                </select>
+              </div>
+              <div class="form-group" th:if="${produto == null}">
+                <label class="form-label">Stock inicial</label>
+                <div class="input-group">
+                  <i class="input-icon fas fa-layer-group"></i>
+                  <input class="form-control" type="number" name="estoque" min="0" value="10" placeholder="Ex: 20"/>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px;margin-top:6px">
+              <button type="submit" class="btn btn-primary btn-lg">
+                <i th:classappend="${produto != null ? 'fas fa-save' : 'fas fa-plus'}"></i>
+                <span th:text="${produto != null ? 'Guardar' : 'Adicionar'}"> </span>
+              </button>
+              <a href="/cardapio" class="btn btn-outline btn-lg">Cancelar</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/venda.js}"></script>
+</body>
+</html>

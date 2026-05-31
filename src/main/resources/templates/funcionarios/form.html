@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Novo Funcionário — Cantina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark"><i class="fas fa-utensils"></i></div>
+      <span class="logo-text">Cantina</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/dashboard"    class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a href="/vendas/nova"  class="nav-link"><i class="fas fa-cash-register"></i> Nova Venda</a>
+      <a href="/estoque"      class="nav-link"><i class="fas fa-boxes-stacked"></i> Estoque</a>
+      <div class="nav-group-label" style="margin-top:12px">Gestão</div>
+      <a href="/cardapio"     class="nav-link"><i class="fas fa-book-open"></i> Cardápio</a>
+      <a href="/vendas/historico" class="nav-link"><i class="fas fa-clock-rotate-left"></i> Histórico</a>
+      <a href="/relatorios"   class="nav-link"><i class="fas fa-chart-bar"></i> Relatórios</a>
+      <a href="/funcionarios" class="nav-link active"><i class="fas fa-users"></i> Funcionários</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-widget">
+        <div class="user-avatar" th:text="${#strings.toUpperCase(#strings.substring(nomeUtilizador,0,1))}">G</div>
+        <div>
+          <div class="user-name" th:text="${nomeUtilizador}">Gerente</div>
+          <div class="user-role">Gerente</div>
+        </div>
+        <form th:action="@{/logout}" method="post" style="margin:0;margin-left:auto">
+          <button type="submit" class="btn-logout"><i class="fas fa-sign-out-alt"></i></button>
+        </form>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-title">Novo Funcionário</div>
+      <div class="topbar-right">
+        <a href="/funcionarios" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Voltar</a>
+        <button class="icon-btn" onclick="toggleTheme()"><i class="fas fa-moon" id="theme-icon"></i></button>
+      </div>
+    </header>
+
+    <div class="content">
+      <div th:if="${erro}" class="alert alert-danger"><i class="fas fa-circle-xmark"></i><span th:text="${erro}"></span></div>
+
+      <div class="card" style="max-width:600px;margin:0 auto">
+        <div class="card-header"><span class="card-title"><i class="fas fa-user-plus text-brand"></i> Dados do Funcionário</span></div>
+        <div class="card-body">
+          <form th:action="@{/funcionarios/novo}" method="post">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Nome completo *</label>
+                <div class="input-group"><i class="input-icon fas fa-user"></i>
+                  <input class="form-control" type="text" name="nome" required autofocus placeholder="Ex: João Silva"/></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Username *</label>
+                <div class="input-group"><i class="input-icon fas fa-at"></i>
+                  <input class="form-control" type="text" name="username" required placeholder="Ex: joao.silva"/></div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Password *</label>
+                <div class="input-group"><i class="input-icon fas fa-lock"></i>
+                  <input class="form-control" type="password" name="password" required minlength="4" placeholder="Mínimo 4 caracteres"/></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email *</label>
+                <div class="input-group"><i class="input-icon fas fa-envelope"></i>
+                  <input class="form-control" type="email" name="email" required placeholder="email@exemplo.com"/></div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Telefone</label>
+                <div class="input-group"><i class="input-icon fas fa-phone"></i>
+<input class="form-control" type="text" name="telefone"
+       placeholder="+244 923 000 000"
+       pattern="\+244\s?[9][0-9]{8}"
+       title="Formato angolano: +244 9XXXXXXXX (ex: +244 923456789)"/></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Cargo</label>
+                <input class="form-control" type="text" name="cargo" placeholder="Ex: Operador de Caixa" value="Operador de Caixa"/>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nível de acesso *</label>
+              <select class="form-control" name="perfil" required>
+                <option value="FUNCIONARIO" selected>Funcionário — acesso ao caixa e estoque</option>
+                <option value="GERENTE">Gerente — acesso total ao sistema</option>
+              </select>
+            </div>
+            <div class="alert alert-warning" style="margin-bottom:16px">
+              <i class="fas fa-triangle-exclamation"></i>
+              <span>Gerente tem acesso a Cardápio, Histórico, Relatórios e Gestão de Funcionários. Atribui com cuidado.</span>
+            </div>
+            <div style="display:flex;gap:10px">
+              <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-user-plus"></i> Criar Conta</button>
+              <a href="/funcionarios" class="btn btn-outline btn-lg">Cancelar</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/venda.js}"></script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — Gerente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+  <style>
+    .gerente-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(90deg,#4880FF,#7c5cfc);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark"><i class="fas fa-utensils"></i></div>
+      <span class="logo-text">Cantina</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-group-label">Principal</div>
+      <a href="/dashboard"   class="nav-link active"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a href="/vendas/nova" class="nav-link"><i class="fas fa-cash-register"></i> Realizar Venda</a>
+      <a href="/estoque"     class="nav-link"><i class="fas fa-boxes-stacked"></i> Estoque</a>
+
+      <div class="nav-group-label" style="margin-top:14px;">Gestão</div>
+      <a href="/cardapio"    class="nav-link"><i class="fas fa-book-open"></i> Cardápio</a>
+      <a href="/vendas/historico"   class="nav-link"><i class="fas fa-clock-rotate-left"></i> Histórico</a>
+      <a href="/relatorios"  class="nav-link"><i class="fas fa-chart-bar"></i> Relatórios</a>
+      <a href="/funcionarios" class="nav-link"><i class="fas fa-users"></i> Funcionários</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-widget">
+        <div class="user-avatar" th:text="${#strings.toUpperCase(#strings.substring(nomeUtilizador,0,1))}">G</div>
+        <div>
+          <div class="user-name" th:text="${nomeUtilizador}">Gerente</div>
+          <div class="user-role">Gerente</div>
+        </div>
+        <form th:action="@{/logout}" method="post" style="margin:0;margin-left:auto">
+          <button type="submit" class="btn-logout" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
+        </form>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>Dashboard <span class="gerente-badge"><i class="fas fa-star"></i> Gerente</span></h1>
+        <p>Olá, <span th:text="${nomeUtilizador}">Gerente</span> — visão geral do sistema</p>
+      </div>
+      <div class="topbar-right">
+        <button class="icon-btn" onclick="toggleTheme()" title="Tema"><i class="fas fa-moon" id="theme-icon"></i></button>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon blue"><i class="fas fa-receipt"></i></div>
+          <div class="stat-info">
+            <div class="stat-value" th:text="${vendasHoje != null ? vendasHoje : 0}">0</div>
+            <div class="stat-label">Vendas hoje</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><i class="fas fa-coins"></i></div>
+          <div class="stat-info">
+            <div class="stat-value" th:text="'Kz ' + ${receitaHoje}">Kz 0</div>
+            <div class="stat-label">Receita hoje</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange"><i class="fas fa-triangle-exclamation"></i></div>
+          <div class="stat-info">
+            <div class="stat-value" th:text="${stockBaixo}">0</div>
+            <div class="stat-label">Stock baixo</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red"><i class="fas fa-users"></i></div>
+          <div class="stat-info">
+            <div class="stat-value" th:text="${utilizador != null ? utilizador.nome : nomeUtilizador}">0</div>
+            <div class="stat-label">Olá!</div>
+          </div>
+        </div>
+      </div>
+
+      <p class="card-title mb-16">Gestão Rápida</p>
+      <div class="action-grid">
+        <a href="/vendas/nova" class="action-card">
+          <div class="ac-icon stat-icon blue"><i class="fas fa-cash-register"></i></div>
+          <div class="ac-title">Nova Venda</div>
+          <div class="ac-desc">Registar venda no caixa</div>
+          <div class="ac-arrow">Abrir &rarr;</div>
+        </a>
+        <a href="/cardapio" class="action-card">
+          <div class="ac-icon stat-icon green"><i class="fas fa-book-open"></i></div>
+          <div class="ac-title">Gerir Cardápio</div>
+          <div class="ac-desc">Adicionar, editar e remover produtos</div>
+          <div class="ac-arrow">Abrir &rarr;</div>
+        </a>
+        <a href="/estoque" class="action-card">
+          <div class="ac-icon stat-icon orange"><i class="fas fa-boxes-stacked"></i></div>
+          <div class="ac-title">Estoque</div>
+          <div class="ac-desc">Ver stock e repor produtos</div>
+          <div class="ac-arrow">Abrir &rarr;</div>
+        </a>
+        <a href="/relatorios" class="action-card">
+          <div class="ac-icon stat-icon red"><i class="fas fa-chart-bar"></i></div>
+          <div class="ac-title">Relatórios</div>
+          <div class="ac-desc">Totais, produtos mais vendidos e mais</div>
+          <div class="ac-arrow">Abrir &rarr;</div>
+        </a>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Últimas Vendas</span>
+            <a href="/vendas/historico" class="btn btn-outline btn-sm">Ver todas</a>
+          </div>
+          <div class="card-body">
+            <div th:if="${ultimasVendas == null or #lists.isEmpty(ultimasVendas)}" class="text-muted" style="font-size:13px;padding:8px 0">Sem vendas registadas hoje.</div>
+            <table th:if="${ultimasVendas != null and !#lists.isEmpty(ultimasVendas)}">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Funcionário</th>
+                  <th>Total</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="v : ${ultimasVendas}">
+                  <td><strong th:text="${v.getNumeroFormatado()}">#001</strong></td>
+                  <td th:text="${v.nomeFuncionario}">—</td>
+                  <td th:text="'Kz ' + ${#numbers.formatDecimal(v.calcularTotal(),0,'POINT',0,'COMMA')}">Kz 0</td>
+                  <td>
+                    <span class="badge badge-success" th:if="${v.fechada}">Fechada</span>
+                    <span class="badge badge-warning" th:if="${v.aberta}">Aberta</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Stock Baixo</span>
+            <a href="/estoque" class="btn btn-outline btn-sm">Ver estoque</a>
+          </div>
+          <div class="card-body">
+            <div th:if="${produtosStockBaixo == null or #lists.isEmpty(produtosStockBaixo)}" class="text-muted" style="font-size:13px;padding:8px 0">Todos os produtos têm stock suficiente.</div>
+            <table th:if="${produtosStockBaixo != null and !#lists.isEmpty(produtosStockBaixo)}">
+              <thead>
+                <tr><th>Produto</th><th>Stock</th><th></th></tr>
+              </thead>
+              <tbody>
+                <tr th:each="p : ${produtosStockBaixo}">
+                  <td><strong th:text="${p.nome}">—</strong></td>
+                  <td>
+                    <div class="stock-bar">
+                      <div class="stock-dot" th:classappend="${p.quantidadeEstoque == 0 ? 'empty' : 'low'}"></div>
+                      <span th:text="${p.quantidadeEstoque} + ' un'">0 un</span>
+                    </div>
+                  </td>
+                  <td><a href="/estoque/repor" class="btn btn-outline btn-sm">Repor</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/venda.js}"></script>
+</body>
+</html>

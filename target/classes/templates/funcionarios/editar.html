@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Editar Funcionário — Cantina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark"><i class="fas fa-utensils"></i></div>
+      <span class="logo-text">Cantina</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/dashboard"    class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a href="/vendas/nova"  class="nav-link"><i class="fas fa-cash-register"></i> Nova Venda</a>
+      <a href="/estoque"      class="nav-link"><i class="fas fa-boxes-stacked"></i> Estoque</a>
+      <div class="nav-group-label" style="margin-top:12px">Gestão</div>
+      <a href="/cardapio"     class="nav-link"><i class="fas fa-book-open"></i> Cardápio</a>
+      <a href="/vendas/historico" class="nav-link"><i class="fas fa-clock-rotate-left"></i> Histórico</a>
+      <a href="/relatorios"   class="nav-link"><i class="fas fa-chart-bar"></i> Relatórios</a>
+      <a href="/funcionarios" class="nav-link active"><i class="fas fa-users"></i> Funcionários</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-widget">
+        <div class="user-avatar" th:text="${#strings.toUpperCase(#strings.substring(nomeUtilizador,0,1))}">G</div>
+        <div>
+          <div class="user-name" th:text="${nomeUtilizador}">Gerente</div>
+          <div class="user-role">Gerente</div>
+        </div>
+        <form th:action="@{/logout}" method="post" style="margin:0;margin-left:auto">
+          <button type="submit" class="btn-logout"><i class="fas fa-sign-out-alt"></i></button>
+        </form>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-title" th:text="'Editar: ' + ${func.nome}">Editar Funcionário</div>
+      <div class="topbar-right">
+        <a href="/funcionarios" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Voltar</a>
+        <button class="icon-btn" onclick="toggleTheme()"><i class="fas fa-moon" id="theme-icon"></i></button>
+      </div>
+    </header>
+
+    <div class="content">
+      <div th:if="${erro}"    class="alert alert-danger"><i class="fas fa-circle-xmark"></i><span th:text="${erro}"></span></div>
+      <div th:if="${sucesso}" class="alert alert-success"><i class="fas fa-circle-check"></i><span th:text="${sucesso}"></span></div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start">
+        <div class="card">
+          <div class="card-header"><span class="card-title"><i class="fas fa-pen text-brand"></i> Dados Pessoais</span></div>
+          <div class="card-body">
+            <form th:action="@{'/funcionarios/editar/' + ${func.id}}" method="post">
+              <div class="form-group">
+                <label class="form-label">Nome *</label>
+                <div class="input-group"><i class="input-icon fas fa-user"></i>
+                  <input class="form-control" type="text" name="nome" required th:value="${func.nome}"/></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email *</label>
+                <div class="input-group"><i class="input-icon fas fa-envelope"></i>
+                  <input class="form-control" type="email" name="email" required th:value="${func.email}"/></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Telefone</label>
+                <div class="input-group"><i class="input-icon fas fa-phone"></i>
+                  <input class="form-control" type="text" name="telefone" th:value="${func.telefone}"/></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Cargo</label>
+                <input class="form-control" type="text" name="cargo" th:value="${func.cargo}"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Perfil</label>
+                <select class="form-control" name="perfil">
+                  <option th:each="p : ${perfis}" th:value="${p}" th:text="${p}" th:selected="${func.perfil == p}">—</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-save"></i> Guardar</button>
+            </form>
+          </div>
+        </div>
+
+        <div>
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-header"><span class="card-title"><i class="fas fa-lock text-brand"></i> Alterar Password</span></div>
+            <div class="card-body">
+              <form th:action="@{'/funcionarios/senha/' + ${func.id}}" method="post">
+                <div class="form-group">
+                  <label class="form-label">Nova Password *</label>
+                  <div class="input-group"><i class="input-icon fas fa-lock"></i>
+                    <input class="form-control" type="password" name="novaSenha" required minlength="4" placeholder="Mínimo 4 caracteres"/></div>
+                </div>
+                <button type="submit" class="btn btn-block" style="background:var(--warning);color:#fff">
+                  <i class="fas fa-key"></i> Alterar Password
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><span class="card-title"><i class="fas fa-circle-info text-brand"></i> Informações</span></div>
+            <div class="card-body">
+              <div style="display:flex;flex-direction:column;gap:10px;font-size:13px">
+                <div><span style="color:var(--text-muted)">Username:</span> <strong th:text="${func.username}">—</strong></div>
+                <div><span style="color:var(--text-muted)">Criado em:</span> <strong th:text="${func.dataCriacaoFormatada}">—</strong></div>
+                <div>
+                  <span style="color:var(--text-muted)">Estado:</span>
+                  <span class="badge badge-success" th:if="${func.ativo}">Ativo</span>
+                  <span class="badge badge-muted"   th:unless="${func.ativo}">Inativo</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/venda.js}"></script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Histórico de Vendas — Cantina</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="app-layout">
+
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-mark"><i class="fas fa-utensils"></i></div>
+            <span class="logo-text">Cantina</span>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-group-label">Principal</div>
+            <a href="/dashboard"   class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a>
+            <a href="/vendas/nova" class="nav-link"><i class="fas fa-cash-register"></i> Realizar Venda</a>
+            <a href="/estoque"     class="nav-link"><i class="fas fa-boxes-stacked"></i> Estoque</a>
+            <div class="nav-group-label" style="margin-top:14px;">Gestão</div>
+            <a href="/cardapio"   class="nav-link"><i class="fas fa-book-open"></i> Cardápio</a>
+            <a href="/vendas/historico"  class="nav-link active"><i class="fas fa-clock-rotate-left"></i> Histórico</a>
+            <a href="/relatorios"   class="nav-link"><i class="fas fa-chart-bar"></i> Relatórios</a>
+            <a href="/funcionarios" class="nav-link"><i class="fas fa-users"></i> Funcionários</a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-widget">
+                <div class="user-avatar" th:text="${#strings.toUpperCase(#strings.substring(nomeUtilizador,0,1))}">G</div>
+                <div>
+                    <div class="user-name" th:text="${nomeUtilizador}">Gerente</div>
+                    <div class="user-role">Gerente</div>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin:0;margin-left:auto">
+                    <button type="submit" class="btn-logout"><i class="fas fa-sign-out-alt"></i></button>
+                </form>
+            </div>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <header class="topbar">
+            <div class="topbar-left">
+                <h1>Histórico de Vendas</h1>
+                <p>Registo completo de todas as transações</p>
+            </div>
+            <div class="topbar-right">
+                <button class="icon-btn" onclick="toggleTheme()"><i class="fas fa-moon" id="theme-icon"></i></button>
+            </div>
+        </header>
+
+        <div class="page-content">
+
+            <div th:if="${sucesso}" class="alert alert-success">
+                <i class="fas fa-circle-check"></i>
+                <span th:text="${sucesso}"></span>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-receipt"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${totalVendas}">0</div>
+                        <div class="stat-label">Total de vendas</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-coins"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${receitaTotal != null ? #numbers.formatDecimal(receitaTotal, 1, 2) + ' Kz' : '0.00 Kz'}">0.00 Kz</div>
+                        <div class="stat-label">Receita total</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange"><i class="fas fa-circle-xmark"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${vendasCanceladas}">0</div>
+                        <div class="stat-label">Canceladas</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Todas as Vendas</span>
+                    <div class="filter-row" style="margin:0;gap:8px">
+                        <form th:action="@{/vendas/historico}" method="get" style="display:flex;gap:8px;flex-wrap:wrap">
+                            <input class="form-control" type="date" name="dataInicio" th:value="${dataInicio}" placeholder="De"/>
+                            <input class="form-control" type="date" name="dataFim"    th:value="${dataFim}"    placeholder="Até"/>
+                            <input class="form-control" type="text" name="funcionario" th:value="${filtroFuncionario}" placeholder="Funcionário"/>
+                            <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-filter"></i> Filtrar</button>
+                            <a href="/vendas/historico" class="btn btn-outline btn-sm">Limpar</a>
+                        </form>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Funcionário</th>
+                            <th>Cliente</th>
+                            <th>Data / Hora</th>
+                            <th>Itens</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                            <th>Ações</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(vendas)}">
+                            <td colspan="8" style="text-align:center;color:var(--text-muted);padding:32px">Nenhuma venda encontrada.</td>
+                        </tr>
+                        <tr th:each="v : ${vendas}">
+                            <td><strong th:text="'#' + ${#numbers.formatInteger(v.id, 3)}">#001</strong></td>
+
+                            <td th:text="${v.id != null ? 'Atendente' : '—'}">—</td>
+
+                            <td th:text="${v.nomeCliente != null and !v.nomeCliente.isEmpty() ? v.nomeCliente : 'Consumidor Final'}">—</td>
+
+                            <td th:text="${v.dataHora != null ? #temporals.format(v.dataHora, 'dd/MM/yyyy HH:mm') : '—'}">—</td>
+
+                            <td th:text="${#lists.size(v.itens)} + ' item(s)'">—</td>
+
+                            <td class="fw-700 text-primary" th:text="${#numbers.formatDecimal(v.calcularTotal(), 1, 2)} + ' Kz'">0.00 Kz</td>
+                            <td>
+                                <span class="badge badge-success" th:if="${v.fechada}">Fechada</span>
+                                <span class="badge badge-warning" th:if="${v.aberta}">Aberta</span>
+                                <span class="badge badge-danger"  th:if="${v.cancelada}">Cancelada</span>
+                            </td>
+                            <td>
+                                <div style="display:flex;gap:6px">
+                                    <a th:href="@{'/vendas/' + ${v.id} + '/fatura'}" class="btn btn-outline btn-sm">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <form th:if="${v.fechada}"
+                                          th:action="@{'/vendas/' + ${v.id} + '/cancelar'}" method="post"
+                                          onsubmit="return confirm('Cancelar esta venda? O stock será devolvido.')">
+                                        <button type="submit" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-xmark"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/venda.js}"></script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Relatórios — Cantina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark"><i class="fas fa-utensils"></i></div>
+      <span class="logo-text">Cantina</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-group-label">Principal</div>
+      <a href="/dashboard"   class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a href="/vendas/nova" class="nav-link"><i class="fas fa-cash-register"></i> Realizar Venda</a>
+      <a href="/estoque"     class="nav-link"><i class="fas fa-boxes-stacked"></i> Estoque</a>
+      <div class="nav-group-label" style="margin-top:14px;">Gestão</div>
+      <a href="/cardapio"         class="nav-link"><i class="fas fa-book-open"></i> Cardápio</a>
+      <a href="/vendas/historico" class="nav-link"><i class="fas fa-clock-rotate-left"></i> Histórico</a>
+      <a href="/relatorios"       class="nav-link active"><i class="fas fa-chart-bar"></i> Relatórios</a>
+      <a href="/funcionarios"     class="nav-link"><i class="fas fa-users"></i> Funcionários</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-widget">
+        <div class="user-avatar" th:text="${#strings.toUpperCase(#strings.substring(nomeUtilizador,0,1))}">G</div>
+        <div>
+          <div class="user-name" th:text="${nomeUtilizador}">Gerente</div>
+          <div class="user-role">Gerente</div>
+        </div>
+        <form th:action="@{/logout}" method="post" style="margin:0;margin-left:auto">
+          <button type="submit" class="btn-logout"><i class="fas fa-sign-out-alt"></i></button>
+        </form>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>Relatórios</h1>
+        <p>Análise de vendas, receitas e produtos</p>
+      </div>
+      <div class="topbar-right">
+        <button class="icon-btn" onclick="toggleTheme()"><i class="fas fa-moon" id="theme-icon"></i></button>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon blue"><i class="fas fa-receipt"></i></div>
+          <div class="stat-info">
+            <div class="stat-value" th:text="${totalVendas}">0</div>
+            <div class="stat-label">Total de vendas</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><i class="fas fa-coins"></i></div>
+          <div class="stat-info">
+            <div class="stat-value" th:text="'Kz ' + ${receitaTotal}">Kz 0</div>
+            <div class="stat-label">Receita total</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange"><i class="fas fa-fire"></i></div>
+          <div class="stat-info">
+            <div class="stat-value" th:text="${!#lists.isEmpty(rankingProdutos) ? rankingProdutos[0].key : '—'}">—</div>
+            <div class="stat-label">Produto mais vendido</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red"><i class="fas fa-user-tie"></i></div>
+          <div class="stat-info">
+            <div class="stat-value" th:text="${!porFuncionario.isEmpty() ? porFuncionario.entrySet().iterator().next().key : '—'}">—</div>
+            <div class="stat-label">Funcionário destaque</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:24px">
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-trophy"></i> Produtos Mais Vendidos</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>#</th><th>Produto</th><th>Qtd</th><th>Receita</th></tr>
+              </thead>
+              <tbody>
+                <tr th:if="${#lists.isEmpty(rankingProdutos)}">
+                  <td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px">Sem dados.</td>
+                </tr>
+                <tr th:each="item, iter : ${rankingProdutos}">
+                  <td>
+                    <span class="badge badge-muted" th:text="${iter.count}">1</span>
+                  </td>
+                  <td><strong th:text="${item.key}">—</strong></td>
+                  <td th:text="${item.value} + ' un'">0</td>
+                  <td class="fw-700 text-primary"
+                      th:text="'Kz ' + ${#numbers.formatDecimal(receitaPorProduto[item.key] != null ? receitaPorProduto[item.key] : 0, 0, 'POINT', 0, 'COMMA')}">0</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-users"></i> Vendas por Funcionário</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Funcionário</th><th>Vendas</th><th>Total</th></tr>
+              </thead>
+              <tbody>
+                <tr th:if="${porFuncionario.isEmpty()}">
+                  <td colspan="3" style="text-align:center;color:var(--text-muted);padding:24px">Sem dados.</td>
+                </tr>
+                <tr th:each="entry : ${porFuncionario}">
+                  <td><strong th:text="${entry.key}">—</strong></td>
+                  <td th:text="${entry.value}">0</td>
+                  <td class="fw-700 text-primary"
+                      th:text="'Kz ' + ${#numbers.formatDecimal(receitaPorFunc[entry.key] != null ? receitaPorFunc[entry.key] : 0, 0, 'POINT', 0, 'COMMA')}">0</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/venda.js}"></script>
+</body>
+</html>

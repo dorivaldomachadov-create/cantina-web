@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      lang="pt">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Novo Produto — Cantina</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="app-layout">
+
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-mark"><i class="fas fa-utensils"></i></div>
+            <span class="logo-text">Cantina</span>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-group-label">Principal</div>
+            <a href="/dashboard"   class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a>
+            <a href="/vendas/nova" class="nav-link"><i class="fas fa-cash-register"></i> Realizar Venda</a>
+            <a href="/estoque"     class="nav-link active"><i class="fas fa-boxes-stacked"></i> Estoque</a>
+            <div sec:authorize="hasRole('GERENTE')">
+                <div class="nav-group-label" style="margin-top:14px;">Gestão</div>
+                <a href="/cardapio"   class="nav-link"><i class="fas fa-book-open"></i> Cardápio</a>
+                <a href="/vendas/historico"  class="nav-link"><i class="fas fa-clock-rotate-left"></i> Histórico</a>
+                <a href="/relatorios" class="nav-link"><i class="fas fa-chart-bar"></i> Relatórios</a>
+                <a href="/funcionarios" class="nav-link"><i class="fas fa-users"></i> Funcionários</a>
+            </div>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-widget">
+                <div class="user-avatar" th:text="${#strings.toUpperCase(#strings.substring(nomeUtilizador,0,1))}">U</div>
+                <div>
+                    <div class="user-name" th:text="${nomeUtilizador}">Utilizador</div>
+                    <div class="user-role" th:text="${perfil}">Perfil</div>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin:0;margin-left:auto">
+                    <button type="submit" class="btn-logout"><i class="fas fa-sign-out-alt"></i></button>
+                </form>
+            </div>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <header class="topbar">
+            <div class="topbar-left">
+                <h1>Novo Produto</h1>
+                <p>Preenche os dados do produto a cadastrar</p>
+            </div>
+            <div class="topbar-right">
+                <button class="icon-btn" onclick="toggleTheme()"><i class="fas fa-moon" id="theme-icon"></i></button>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="card" style="max-width:480px">
+                <div class="card-header">
+                    <span class="card-title">Dados do Produto</span>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/estoque/novo}" th:object="${produto}" method="post">
+
+                        <div class="form-group">
+                            <label class="form-label">Nome</label>
+                            <div class="input-group">
+                                <i class="input-icon fas fa-tag"></i>
+                                <input class="form-control" type="text" th:field="*{nome}"
+                                       placeholder="Ex: Água mineral" required autofocus/>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Categoria</label>
+                            <div class="input-group">
+                                <i class="input-icon fas fa-list"></i>
+                                <input class="form-control" type="text" th:field="*{categoria}"
+                                       placeholder="Ex: Bebidas" required/>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Preço (Kz)</label>
+                            <div class="input-group">
+                                <i class="input-icon fas fa-money-bill"></i>
+                                <input class="form-control" type="number" step="0.01" min="0"
+                                       th:field="*{preco}" placeholder="Ex: 150.00" required/>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Quantidade inicial em stock</label>
+                            <div class="input-group">
+                                <i class="input-icon fas fa-boxes-stacked"></i>
+                                <input class="form-control" type="number" min="0"
+                                       th:field="*{quantidadeEstoque}" placeholder="Ex: 20" required/>
+                            </div>
+                        </div>
+
+                        <div style="display:flex;gap:10px;margin-top:20px">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-check"></i> Guardar Produto
+                            </button>
+                            <a href="/estoque" class="btn btn-outline">
+                                <i class="fas fa-arrow-left"></i> Cancelar
+                            </a>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/venda.js}"></script>
+</body>
+</html>

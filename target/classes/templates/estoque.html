@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      lang="pt">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Estoque — Cantina</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="app-layout">
+
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-mark"><i class="fas fa-utensils"></i></div>
+            <span class="logo-text">Cantina</span>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-group-label">Principal</div>
+            <a href="/dashboard"   class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a>
+            <a href="/vendas/nova" class="nav-link"><i class="fas fa-cash-register"></i> Realizar Venda</a>
+            <a href="/estoque"     class="nav-link active"><i class="fas fa-boxes-stacked"></i> Estoque</a>
+            <div sec:authorize="hasRole('GERENTE')">
+                <div class="nav-group-label" style="margin-top:14px;">Gestão</div>
+                <a href="/cardapio"   class="nav-link"><i class="fas fa-book-open"></i> Cardápio</a>
+                <a href="/vendas/historico"  class="nav-link"><i class="fas fa-clock-rotate-left"></i> Histórico</a>
+                <a href="/relatorios" class="nav-link"><i class="fas fa-chart-bar"></i> Relatórios</a>
+      <a href="/funcionarios" class="nav-link"><i class="fas fa-users"></i> Funcionários</a>
+            </div>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-widget">
+                <div class="user-avatar" th:text="${utilizador != null ? utilizador.avatarInicial : (nomeUtilizador != null ? nomeUtilizador.substring(0,1).toUpperCase() : 'U')}">U</div>
+                <div>
+                    <div class="user-name" th:text="${nomeUtilizador}">Utilizador</div>
+                    <div class="user-role" th:text="${perfil}">Perfil</div>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin:0;margin-left:auto">
+                    <button type="submit" class="btn-logout"><i class="fas fa-sign-out-alt"></i></button>
+                </form>
+            </div>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <header class="topbar">
+            <div class="topbar-left">
+                <h1>Estoque</h1>
+                <p>Controlo de quantidades e disponibilidade</p>
+            </div>
+            <div class="topbar-right" style="display:flex;gap:8px;align-items:center">
+                <div sec:authorize="hasRole('GERENTE')" style="display:flex;gap:8px">
+                    <a href="/estoque/novo"  class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Novo Produto</a>
+                    <a href="/estoque/repor" class="btn btn-outline btn-sm"><i class="fas fa-rotate-right"></i> Repor Stock</a>
+                </div>
+                <button class="icon-btn" onclick="toggleTheme()"><i class="fas fa-moon" id="theme-icon"></i></button>
+            </div>
+        </header>
+
+        <div class="page-content">
+
+            <div th:if="${sucesso}" class="alert alert-success">
+                <i class="fas fa-circle-check"></i>
+                <span th:text="${sucesso}"></span>
+            </div>
+
+            <div class="stats-row" style="margin-bottom:24px">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-layer-group"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${totalProdutos}">0</div>
+                        <div class="stat-label">Total de produtos</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-circle-check"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${produtosOk}">0</div>
+                        <div class="stat-label">Stock OK</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange"><i class="fas fa-triangle-exclamation"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${stockBaixo}">0</div>
+                        <div class="stat-label">Stock baixo</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red"><i class="fas fa-ban"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value" th:text="${semStock}">0</div>
+                        <div class="stat-label">Sem stock</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Todos os Produtos</span>
+                    <div class="filter-row" style="margin:0">
+                        <input class="form-control" type="text" id="filtro-estoque"
+                               placeholder="Filtrar por nome..." style="max-width:220px"
+                               oninput="filtrarEstoque(this.value)"/>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table id="tabela-estoque">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Produto</th>
+                            <th>Categoria</th>
+                            <th>Preço</th>
+                            <th>Stock</th>
+                            <th>Estado</th>
+                            <th sec:authorize="hasRole('GERENTE')">Ações</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="p : ${produtos}">
+                            <td><strong th:text="'#' + p.id">1</strong></td>
+                            <td><strong th:text="${p.nome}">—</strong></td>
+                            <td th:text="${p.categoria}">—</td>
+                            <td class="fw-700 text-primary" th:text="'Kz ' + ${p.preco}">0</td>
+                            <td>
+                                <div class="stock-bar">
+                                    <div class="stock-dot"
+                                         th:classappend="${p.quantidadeEstoque == 0 ? 'empty' : (p.quantidadeEstoque <= 3 ? 'low' : 'ok')}">
+                                    </div>
+                                    <span th:text="${p.quantidadeEstoque} + ' unidades'">0</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge badge-success" th:if="${p.quantidadeEstoque > 3}">OK</span>
+                                <span class="badge badge-warning" th:if="${p.quantidadeEstoque > 0 and p.quantidadeEstoque <= 3}">Baixo</span>
+                                <span class="badge badge-danger"  th:if="${p.quantidadeEstoque == 0}">Esgotado</span>
+                            </td>
+                            <td sec:authorize="hasRole('GERENTE')" style="display:flex;gap:6px">
+                                <a th:href="@{'/estoque/repor?id=' + ${p.id}}" class="btn btn-outline btn-sm">
+                                    <i class="fas fa-rotate-right"></i> Repor
+                                </a>
+                                <form th:action="@{'/estoque/apagar/' + ${p.id}}" method="post" style="display:inline" onsubmit="return confirm('Tens a certeza que queres remover este produto?')">
+                                    <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div sec:authorize="hasRole('GERENTE')" th:if="${reporId != null}" style="margin-top:24px">
+                <div class="card" style="max-width:440px">
+                    <div class="card-header"><span class="card-title">Repor Stock</span></div>
+                    <div class="card-body">
+                        <form th:action="@{/estoque/repor}" method="post">
+                            <input type="hidden" name="id" th:value="${reporId}"/>
+                            <div class="form-group">
+                                <label class="form-label">Produto</label>
+                                <input class="form-control" type="text" th:value="${reporNome}" readonly/>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Quantidade a adicionar</label>
+                                <div class="input-group">
+                                    <i class="input-icon fas fa-plus"></i>
+                                    <input class="form-control" type="number" name="quantidade" min="1" placeholder="Ex: 10" required autofocus/>
+                                </div>
+                            </div>
+                            <div style="display:flex;gap:10px">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Confirmar</button>
+                                <a href="/estoque" class="btn btn-outline">Cancelar</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/venda.js}"></script>
+<script>
+    function filtrarEstoque(val) {
+      const rows = document.querySelectorAll('#tabela-estoque tbody tr');
+      rows.forEach(row => {
+        const nome = row.cells[1]?.textContent.toLowerCase() || '';
+        row.style.display = nome.includes(val.toLowerCase()) ? '' : 'none';
+      });
+    }
+</script>
+</body>
+</html>

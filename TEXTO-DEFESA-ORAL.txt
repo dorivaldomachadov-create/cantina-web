@@ -1,0 +1,415 @@
+TEXTO DE DEFESA ORAL — SISTEMA DE GESTÃO DE CANTINA
+=====================================================
+Projeto: Sistema de Gestão de Cantina (Spring Boot + Thymeleaf + JPA)
+Preparado para: Apresentação e defesa em sala de aula
+
+
+══════════════════════════════════════════════════════════════════
+DORIVALDO — LÍDER DO PROJETO
+(Fala primeiro — apresenta o projeto, explica a arquitetura,
+ explica th:classappend e o Capítulo 2 do material)
+══════════════════════════════════════════════════════════════════
+
+[ABERTURA — apresentar o projeto]
+
+"Bom dia / Boa tarde a todos. O meu nome é Dorivaldo e sou o líder
+deste projeto. Vamos apresentar o Sistema de Gestão de Cantina,
+uma aplicação web desenvolvida em Java com Spring Boot, Thymeleaf
+e Spring Security.
+
+O sistema surgiu de uma necessidade real: gerir as operações de
+uma cantina de forma digital. Antes de entrar nos detalhes técnicos,
+quero explicar a ideia central — o sistema funciona como um caixa
+de supermercado. O cliente não usa o software. Ele chega ao balcão,
+diz o que quer, e o funcionário é quem regista no sistema, calcula
+o total e emite a fatura. O cliente só vê o resultado final."
+
+---
+
+[ARQUITETURA — explicar as camadas]
+
+"Antes de cada colega falar da sua parte, deixem-me mostrar como
+o projeto está organizado.
+
+Seguimos uma arquitetura em três camadas, que é o padrão profissional
+em Java:
+
+  Camada 1 — Modelo: as classes que representam os dados reais do
+  sistema. Produto, Venda, Utilizador, ItemVenda. São anotadas com
+  @Entity, o que significa que o Spring Data JPA cria automaticamente
+  as tabelas na base de dados com base nestas classes.
+
+  Camada 2 — Repositório: interfaces que estendem JpaRepository.
+  Com apenas uma linha de código, temos métodos para guardar,
+  buscar, atualizar e apagar dados na base de dados — sem escrever
+  uma única linha de SQL.
+
+  Camada 3 — Serviço: aqui fica a lógica de negócio. O VendaServico,
+  por exemplo, sabe como deduzir stock quando um item é adicionado
+  à venda, como cancelar uma venda e devolver o stock, e como
+  calcular o total.
+
+  Camada 4 — Controller: recebe os pedidos do browser, chama os
+  serviços e devolve as páginas HTML."
+
+---
+
+[SPRING BOOT — Capítulo 2 do Material de Estudo]
+
+"Quero explicar o que é o Spring Boot, porque foi a peça mais
+importante desta mudança do terminal para a web.
+
+Imaginem que querem construir uma casa. Há dois caminhos: fazer
+todos os tijolos à mão, misturar o cimento, cortar a madeira —
+ou alugar um espaço já montado e só trazer a vossa decoração.
+O Spring Boot é o espaço já montado.
+
+Antes do Spring Boot, fazer uma aplicação web em Java requeria:
+configurar um servidor Tomcat manualmente, escrever centenas de
+linhas de XML de configuração, e gerir as dependências à mão.
+
+Com Spring Boot, corremos um único comando:
+  ./mvnw spring-boot:run
+
+E o que acontece é isto: o Spring Boot arranca um servidor web
+Tomcat dentro do nosso programa Java. Esse servidor fica à escuta
+na porta 8080. Quando alguém abre http://localhost:8080 no browser,
+o servidor recebe o pedido, o Spring procura qual método Java
+responde a esse endereço, esse método corre e devolve o nome de
+um ficheiro HTML. O Thymeleaf processa esse HTML, substitui os
+dados reais, e o resultado final chega ao browser.
+
+É como um ciclo: pedido do browser → Spring → Controller Java →
+Thymeleaf processa HTML → resposta para o browser."
+
+---
+
+[TH:CLASSAPPEND — explicar linha de código]
+
+"Agora quero mostrar uma das funcionalidades do Thymeleaf que
+considero mais elegante: o th:classappend.
+
+No nosso sistema, temos indicadores de stock — uns pontos
+coloridos que ficam verdes quando o stock está OK, amarelos
+quando está baixo, e vermelhos quando está esgotado.
+
+Sem Thymeleaf, teríamos de escrever JavaScript ou criar três
+elementos HTML diferentes para cada estado.
+
+Com th:classappend, escrevemos apenas isto:
+
+  <div class='stock-dot'
+       th:classappend='${p.quantidadeEstoque == 0 ? \"empty\" :
+                        (p.quantidadeEstoque <= 5 ? \"low\" : \"ok\")}'>
+  </div>
+
+O que esta linha faz, palavra por palavra:
+
+  class='stock-dot' — a classe base que sempre existe. O CSS já
+  tem os estilos básicos para esta classe.
+
+  th:classappend — o Thymeleaf vai ADICIONAR mais uma classe CSS
+  a este elemento, sem remover as classes existentes.
+
+  ${...} — delimitador do Thymeleaf. Tudo dentro é avaliado como
+  expressão Java/Spring.
+
+  p.quantidadeEstoque == 0 — se o stock for zero...
+
+  ? 'empty' — usa a classe 'empty' (o CSS pinta de vermelho)
+
+  : (p.quantidadeEstoque <= 5 ? 'low' : 'ok') — senão, avalia
+  outro ternário: se for 5 ou menos, usa 'low' (amarelo); se for
+  mais de 5, usa 'ok' (verde).
+
+O resultado é que o HTML gerado para um produto com stock zero
+fica:
+  <div class='stock-dot empty'></div>
+
+E o CSS faz o resto. Um comportamento dinâmico completo com
+uma única linha de HTML.
+
+Passando agora ao meu colega Flejon."
+
+---
+
+══════════════════════════════════════════════════════════════════
+FLEJON — CARDÁPIO E ESTOQUE
+══════════════════════════════════════════════════════════════════
+
+[PARTE TÉCNICA]
+
+"Obrigado Dorivaldo. Sou o Flejon e fui responsável pelo módulo
+de Cardápio e pelo Estoque.
+
+O meu maior desafio foi garantir que certas funcionalidades só
+estivessem disponíveis para o Gerente, sem que o Funcionário
+conseguisse aceder mesmo que soubesse o URL.
+
+Implementei duas camadas de proteção:
+
+A primeira é no HTML, com o atributo sec:authorize do Thymeleaf
+Security:
+
+  <div sec:authorize='hasRole(\"GERENTE\")'>
+    <button>Repor Stock</button>
+  </div>
+
+Este div simplesmente não existe no HTML que o Funcionário recebe.
+O servidor remove-o antes de enviar a página.
+
+Mas isso não chega. Um utilizador experiente poderia tentar enviar
+um pedido POST diretamente para /estoque/repor sem passar pelo
+botão. Por isso, no Controller, adicionei a segunda camada:
+
+  @PreAuthorize('hasRole(\"GERENTE\")')
+  @PostMapping('/estoque/repor')
+  public String processarRepor(...) { ... }
+
+Esta anotação faz o Spring Security verificar o perfil antes mesmo
+de o método correr. Se for um Funcionário, o sistema devolve
+403 Forbidden automaticamente.
+
+No CardapioController, apliquei @PreAuthorize a toda a classe,
+o que significa que todos os endpoints dessa classe ficam
+automaticamente protegidos sem precisar de repetir a anotação
+em cada método.
+
+O meu maior desafio foi entender a diferença entre proteger a
+interface visual com sec:authorize e proteger o backend com
+@PreAuthorize. Percebi que precisamos sempre das duas — a interface
+esconde para melhorar a experiência, mas o backend é quem garante
+a segurança real."
+
+---
+
+══════════════════════════════════════════════════════════════════
+EDUARDO — VENDAS, FATURA E HISTÓRICO
+══════════════════════════════════════════════════════════════════
+
+[PARTE TÉCNICA]
+
+"Sou o Eduardo e fui responsável pela parte mais central do
+sistema: as Vendas.
+
+A venda é o fluxo mais complexo porque envolve múltiplos passos
+e vários modelos ao mesmo tempo. Deixem-me mostrar como funciona
+a pesquisa dupla de produto, que foi o meu maior desafio.
+
+O funcionário pode adicionar um produto à venda de duas formas:
+pelo ID ou pelo nome. No mesmo formulário HTML. Para isso,
+criei este endpoint no VendaController:
+
+  @PostMapping('/{id}/item')
+  public String adicionarItem(
+      @PathVariable Integer id,
+      @RequestParam(required=false) Integer idProduto,
+      @RequestParam(required=false) String nomeProduto,
+      @RequestParam(defaultValue='1') int quantidade) {
+
+O @PathVariable lê o ID da venda diretamente da URL:
+/vendas/3/item — o número 3 vai para a variável id.
+
+O required=false nos dois parâmetros seguintes significa que
+nenhum deles é obrigatório individualmente — o funcionário
+preenche um ou outro.
+
+No VendaServico, a lógica verifica qual foi preenchido:
+
+  if (idProduto != null) {
+      produto = produtoRepo.findById(idProduto);
+  } else if (nomeProduto != null && !nomeProduto.isBlank()) {
+      produto = produtoRepo.findByNomeContainingIgnoreCase(nomeProduto);
+  }
+
+O isBlank() é importante — verifica se a String está vazia
+ou só tem espaços. Sem isto, se o campo ficar em branco,
+o Java tentaria buscar um produto com nome vazio e falharia.
+
+Outro ponto importante: quando um item é adicionado à venda,
+o stock é deduzido imediatamente e guardado na base de dados.
+Se o servidor cair nesse momento, o stock correto já está guardado.
+Quando o servidor voltar, os dados estão lá."
+
+---
+
+══════════════════════════════════════════════════════════════════
+PITRA — INTERFACE, CSS E LOGIN
+══════════════════════════════════════════════════════════════════
+
+[PARTE TÉCNICA]
+
+"Sou o Pitra e fui responsável por tudo o que o utilizador vê:
+o CSS, o layout da aplicação, a página de login e os dashboards.
+
+O maior desafio técnico que enfrentei foi criar um sistema de
+cores que funciona tanto em modo claro como em modo escuro,
+sem duplicar o CSS.
+
+A solução foram as variáveis CSS. Em vez de escrever cores
+diretamente, usamos variáveis:
+
+  :root {
+    --primary: #4880FF;
+    --bg:      #F5F6FA;
+    --surface: #FFFFFF;
+    --text-primary: #202224;
+  }
+
+  [data-theme='dark'] {
+    --bg:      #1C1C1E;
+    --surface: #2C2C2E;
+    --text-primary: #F2F2F7;
+  }
+
+Quando o utilizador clica no botão de modo escuro, o JavaScript
+adiciona data-theme='dark' à tag html. O CSS detecta isso e
+redefine as variáveis. Todos os elementos que usam estas variáveis
+atualizam-se automaticamente — sem tocar em mais nenhuma linha
+de CSS.
+
+O JavaScript guarda a preferência no localStorage do browser:
+
+  localStorage.setItem('tema', 'dark');
+
+Assim, quando o utilizador voltar amanhã, a preferência ainda
+está lá.
+
+Para o formulário de login, aprendi que o Spring Security tem
+uma exigência específica: os campos do formulário têm de se
+chamar exatamente username e password. Se se chamarem user
+ou pass ou qualquer outra coisa, o Spring não os reconhece
+e o login falha sempre, mesmo com credenciais corretas.
+
+Isso custou-nos tempo até perceber — mas aprendi que as
+frameworks têm convenções que têm de ser respeitadas."
+
+---
+
+══════════════════════════════════════════════════════════════════
+ELIAS — RELATÓRIOS, FUNCIONÁRIOS E TESTES
+══════════════════════════════════════════════════════════════════
+
+[PARTE TÉCNICA]
+
+"Sou o Elias e fui responsável pelos Relatórios, pela Gestão
+de Funcionários e pelos testes do sistema.
+
+Começando pelos Relatórios: o desafio foi transformar uma lista
+de vendas em dados úteis para o Gerente, como 'qual foi o produto
+mais vendido' ou 'qual funcionário fez mais vendas'.
+
+Para isto usei as Streams do Java com Collectors:
+
+  Map<String, Long> porFuncionario = fechadas.stream()
+    .collect(Collectors.groupingBy(
+      Venda::getNomeFuncionario,
+      Collectors.counting()
+    ));
+
+Esta linha percorre todas as vendas fechadas, agrupa-as pelo nome
+do funcionário e conta quantas há em cada grupo. O resultado é
+um Map onde a chave é o nome e o valor é a contagem:
+{'João' -> 12, 'Maria' -> 8}.
+
+Para o ranking de produtos, percorri todos os itens de todas
+as vendas e somei as quantidades:
+
+  fechadas.forEach(v -> v.getItens().forEach(item ->
+    porProduto.merge(
+      item.getProduto().getNome(),
+      (long) item.getQuantidade(),
+      Long::sum
+    )
+  ));
+
+O merge faz o seguinte: se a chave já existe no Map, soma o novo
+valor ao existente. Se não existe, cria com o novo valor.
+
+Para a Gestão de Funcionários, o maior desafio foi a segurança
+das passwords. Nunca guardamos a password real — usamos o
+BCryptPasswordEncoder que transforma '1234' num hash irreversível.
+
+No FuncionarioServico, antes de criar a conta, verificamos:
+username único, email único, e password com mínimo de 4 caracteres.
+O método devolve null se correu bem, ou uma String de erro se
+falhou. O Controller verifica este retorno e mostra a mensagem.
+
+Nos testes, o cenário mais importante que validei foi: um
+Funcionário tentar aceder a /cardapio. O sistema devolve 403
+Forbidden — nem chega ao Controller. A dupla proteção funciona."
+
+---
+
+══════════════════════════════════════════════════════════════════
+FECHO — DORIVALDO (LÍDER)
+══════════════════════════════════════════════════════════════════
+
+"Para concluir, este projeto foi para todos nós a primeira
+experiência a construir uma aplicação web completa em Java.
+
+Os maiores aprendizados foram:
+
+  Primeiro — a diferença entre proteger a interface e proteger
+  o backend. O sec:authorize esconde botões. O @PreAuthorize
+  bloqueia mesmo. Precisamos sempre das duas.
+
+  Segundo — a persistência de dados. Usámos H2 com ficheiro,
+  o que significa que os dados não se perdem ao reiniciar o
+  servidor. Cada venda, cada produto, cada utilizador —
+  tudo guardado automaticamente pelo JPA sem escrever SQL.
+
+  Terceiro — trabalhar em equipa com Git. Cada um na sua
+  branch, Pull Requests, revisão antes do merge. Foi
+  desafiante coordenar à distância, mas funcionou.
+
+O sistema está funcional, tem todos os módulos a trabalhar,
+e cobre o ciclo completo de gestão de uma cantina:
+da página pública de apresentação à fatura imprimível.
+
+Obrigado. Estamos disponíveis para perguntas."
+
+---
+
+══════════════════════════════════════════════════════════════════
+RESPOSTAS PARA POSSÍVEIS PERGUNTAS DO PROFESSOR
+══════════════════════════════════════════════════════════════════
+
+P: "Por que usaram H2 e não MySQL?"
+R: "O H2 com persistência em ficheiro foi a escolha para facilitar
+    o desenvolvimento e a entrega — não requer instalação de um
+    servidor de base de dados separado. Em produção real,
+    mudaríamos para PostgreSQL ou MySQL — bastaria alterar
+    o application.properties e adicionar o driver ao pom.xml.
+    O código JPA ficaria igual."
+
+P: "O que é o Spring Security e como sabe quem é Gerente?"
+R: "O Spring Security é uma biblioteca que protege a aplicação.
+    Quando alguém faz login, o Spring carrega o utilizador da
+    base de dados e verifica a password com BCrypt. Se correr
+    bem, guarda o perfil na sessão. A partir daí, em cada pedido,
+    o Spring verifica automaticamente se o utilizador tem permissão
+    para aceder ao URL pedido — sem precisarmos de escrever
+    essa lógica em cada Controller."
+
+P: "O que é Thymeleaf?"
+R: "É um motor de templates. Pega num ficheiro HTML com marcadores
+    especiais como th:text ou th:each, substitui esses marcadores
+    pelos dados reais vindos do Java, e devolve HTML puro ao browser.
+    O browser nunca vê o Thymeleaf — recebe só HTML normal."
+
+P: "Como funciona o @Transactional?"
+R: "Garante que um conjunto de operações na base de dados é
+    executado como uma unidade atómica. Se uma operação falhar,
+    todas as anteriores são revertidas. No nosso VendaServico,
+    quando adicionamos um item à venda, deduzimos o stock E
+    guardamos o item — as duas operações juntas. Se a segunda
+    falhar, a dedução do stock é automaticamente revertida."
+
+P: "Qual foi o maior desafio do projeto?"
+R: "Foram dois. O primeiro foi perceber a diferença entre
+    proteger a interface e proteger o backend — levou tempo
+    a perceber que precisamos das duas camadas. O segundo
+    foi trabalhar em equipa à distância com Git — gerir
+    conflitos de código quando várias pessoas editam ficheiros
+    relacionados ao mesmo tempo."

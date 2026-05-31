@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nova Password</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+  <style>
+    body{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,var(--primary-light) 0%,var(--bg) 100%)}
+    .box{width:420px;max-width:96vw;background:var(--surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);padding:42px 38px}
+    .theme-fab{position:fixed;top:14px;right:14px;width:38px;height:38px;border-radius:50%;border:1.5px solid var(--border);background:var(--surface);box-shadow:var(--shadow);display:grid;place-items:center;font-size:15px;color:var(--text-secondary);cursor:pointer;transition:all var(--transition);z-index:999}
+    .theme-fab:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
+  </style>
+</head>
+<body>
+<button class="theme-fab" onclick="toggleTheme()"><i class="fas fa-moon" id="theme-icon"></i></button>
+<div class="box">
+  <div style="text-align:center;margin-bottom:28px">
+    <div style="width:52px;height:52px;background:var(--success-light);border-radius:var(--radius);display:grid;place-items:center;font-size:22px;color:var(--success);margin:0 auto 14px">
+      <i class="fas fa-lock-open"></i>
+    </div>
+    <h2 style="font-size:20px;font-weight:800;margin-bottom:5px">Nova Password</h2>
+    <p style="font-size:13px;color:var(--text-muted)">Escolhe uma nova password para a tua conta</p>
+  </div>
+
+  <div th:if="${erro}" class="alert alert-danger"><i class="fas fa-circle-xmark"></i><span th:text="${erro}"></span></div>
+
+  <form th:action="@{/auth/nova-senha}" method="post">
+    <input type="hidden" name="token" th:value="${token}"/>
+    <div class="form-group">
+      <label class="form-label">Nova Password</label>
+      <div class="input-group">
+        <i class="input-icon fas fa-lock"></i>
+        <input class="form-control" type="password" name="novaSenha" placeholder="Mínimo 4 caracteres" required minlength="4" autofocus/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Confirmar Password</label>
+      <div class="input-group">
+        <i class="input-icon fas fa-lock"></i>
+        <input class="form-control" type="password" name="confirmar" placeholder="Repetir password" required minlength="4"/>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-success btn-block btn-lg"><i class="fas fa-check"></i> Confirmar</button>
+  </form>
+
+  <div style="text-align:center;margin-top:18px">
+    <a th:href="@{/login}" style="font-size:13px;color:var(--text-muted)"><i class="fas fa-arrow-left"></i> Cancelar</a>
+  </div>
+</div>
+<script th:src="@{/js/venda.js}"></script>
+</body>
+</html>
